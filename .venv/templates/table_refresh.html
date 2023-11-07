@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+<form method="post" action="/database">
+        <input type="submit" value="b_ring" name="B ring"/>
+        <input type="submit" value="brim" name="Brim" />
+</form>
+  {{ super() }}
+<table>
+  <tr>
+    {% for header in headings %}
+    <th>{{ header }}</th>
+    {% endfor %}
+  </tr>
+  {% for row in data %}
+  <tr>
+    {% for cell in row %}
+    <td>{{ cell }}</td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+{% endblock %}
+{% block content %}
+  <h1>Index</h1>
+  <p class="important">
+    Welcome on my awesome homepage.
+{% endblock %}
