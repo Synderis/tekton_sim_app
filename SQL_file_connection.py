@@ -81,62 +81,6 @@ selection = Gear(b_ring_check=1, brim_check=0, ultor_check=0, feros_check=0,
                    fang_check=0, cm_check=1, inq_check=1, tort_check=0, lightbearer_check=0,
                    preveng_check=0, veng_camp_check=0, vuln_check=0, book_of_water_check=0, five_tick_only_check=0)
 
-sql_cmd = text("""SELECT TOP (10) [tick_times]
-          ,[anvil_count]
-          ,[hammer_count]
-          ,[cm]
-          ,[inq]
-          ,[five_tick_only]
-          ,[fang]
-          ,[b_ring]
-          ,[brim]
-          ,[feros]
-          ,[tort]
-          ,[lightbearer]
-          ,[preveng]
-          ,[veng_camp]
-          ,[vuln]
-          ,[book_of_water]
-      FROM [tekton_sim_data].[dbo].[tekton_results]""")
-
-
-sql_cmd1 = text(f"""SELECT TOP (10) [tick_times]
-          ,[anvil_count]
-          ,[hammer_count]
-          ,[cm]
-          ,[inq]
-          ,[five_tick_only]
-          ,[fang]
-          ,[b_ring]
-          ,[brim]
-          ,[feros]
-          ,[tort]
-          ,[lightbearer]
-          ,[preveng]
-          ,[veng_camp]
-          ,[vuln]
-          ,[book_of_water]
-      FROM [tekton_sim_data].[dbo].[tekton_results]
-      WHERE ([b_ring] = {0} AND [brim] = {x})""")
-
-sql_cmd2 = text(f"""SELECT TOP (10) [tick_times]
-          ,[anvil_count]
-          ,[hammer_count]
-          ,[cm]
-          ,[inq]
-          ,[five_tick_only]
-          ,[fang]
-          ,[b_ring]
-          ,[brim]
-          ,[feros]
-          ,[tort]
-          ,[lightbearer]
-          ,[preveng]
-          ,[veng_camp]
-          ,[vuln]
-          ,[book_of_water]
-      FROM [tekton_sim_data].[dbo].[tekton_results]
-      WHERE ([b_ring] = {selection.b_ring_check} AND [brim] = {selection.brim_check})""")
 
 headings = ('tick_times', 'anvil_count', 'hammer_count', 'cm', 'inq', 'five_tick_only', 'fang', 'b_ring', 'brim', 'feros', 'tort', 'lightbearer', 'preveng', 'veng_camp', 'vuln', 'book_of_water')
 
@@ -147,7 +91,18 @@ class TektonResults(db.Model):
     b_ring = db.Column('b_ring', db.Integer)
     brim = db.Column('brim', db.Integer)
     anvil_count = db.Column('anvil_count', db.Integer)
-
+    hammer_count = db.Column('hammer_count', db.Integer)
+    cm = db.Column('cm', db.Integer)
+    inq = db.Column('inq', db.Integer)
+    feros = db.Column('feros', db.Integer)
+    tort = db.Column('tort', db.Integer)
+    fang = db.Column('fang', db.Integer)
+    five_tick = db.Column('five_tick_only', db.Integer)
+    lightbearer = db.Column('lightbearer', db.Integer)
+    pre_veng = db.Column('preveng', db.Integer)
+    veng_camp = db.Column('veng_camp', db.Integer)
+    vuln = db.Column('vuln', db.Integer)
+    vuln_book = db.Column('book_of_water', db.Integer)
 
 @app.route("/table/", methods=['GET', 'POST',])
 def table():
@@ -167,10 +122,14 @@ def table():
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
-    selection.brim_check = request.form.get('Brim')
     data_n = session.query(TektonResults).where(TektonResults.brim == 1).limit(5)
 
     df = pd.read_sql(data_n.statement, con=db_engine)
+    sub115 = len(df[(df['tick_times'] <= 125)].copy())
+    sub_100 = len(df[(df['tick_times'] <= 100)].copy())
+    one_anvil_num = len(df[(df['anvil_count'] <= 1)].copy())
+    two_anvil_num = len(df[(df['anvil_count'] == 2)].copy())
+
     print(df)
     return render_template(r"table_refresh.html", titles=df.columns.values, tables=[df.to_html(classes='data_n')])
 
