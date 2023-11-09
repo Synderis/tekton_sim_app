@@ -3,14 +3,17 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from sqlalchemy import URL
 from flask import render_template, Flask, request, redirect, url_for
-from sqlalchemy import engine
+from sqlalchemy import create_engine, MetaData, engine
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
+from sqlalchemy.ext.declarative import declarative_base
 from urllib import parse
 
 
 # this variable, db, will be used for all SQLAlchemy commands
 # db = SQLAlchemy()
 # create the app
+db = SQLAlchemy()
 app = Flask(__name__, template_folder=r'C:\Users\Dylan\PycharmProjects\home_project\myflaskproject\.venv\templates')
 # change string to the name of your database; add path if necessary
 
@@ -24,12 +27,19 @@ connection_url = engine.URL.create(
     },
 )
 
+db_engine = create_engine(connection_url, echo=False)
+
+SessionObject = sessionmaker(bind=db_engine)
+session = SessionObject()
+# Base = declarative_base()
+# Base.metadata.reflect(engine)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_url
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # initialize the app with Flask-SQLAlchemy
-db = SQLAlchemy(app)
+db.init_app(app)
 
 
 # NOTHING BELOW THIS LINE NEEDS TO CHANGE
@@ -45,8 +55,31 @@ def testdb():
         hed = '<h1>Something is broken.</h1>'
         return hed + error_text
 
+x = 0
 
-main_sql = text('')
+class Gear:
+    def __init__(self, b_ring_check, brim_check, ultor_check, feros_check, fang_check,
+                 cm_check, inq_check, tort_check, lightbearer_check, preveng_check, veng_camp_check, vuln_check,
+                 book_of_water_check, five_tick_only_check):
+        self.b_ring_check = b_ring_check
+        self.brim_check = brim_check
+        self.ultor_check = ultor_check
+        self.feros_check = feros_check
+        self.fang_check = fang_check
+        self.cm_check = cm_check
+        self.inq_check = inq_check
+        self.tort_check = tort_check
+        self.lightbearer_check = lightbearer_check
+        self.preveng_check = preveng_check
+        self.veng_camp_check = veng_camp_check
+        self.vuln_check = vuln_check
+        self.book_of_water_check = book_of_water_check
+        self.five_tick_only_check = five_tick_only_check
+
+
+selection = Gear(b_ring_check=1, brim_check=0, ultor_check=0, feros_check=0,
+                   fang_check=0, cm_check=1, inq_check=1, tort_check=0, lightbearer_check=0,
+                   preveng_check=0, veng_camp_check=0, vuln_check=0, book_of_water_check=0, five_tick_only_check=0)
 
 sql_cmd = text("""SELECT TOP (10) [tick_times]
           ,[anvil_count]
@@ -67,7 +100,7 @@ sql_cmd = text("""SELECT TOP (10) [tick_times]
       FROM [tekton_sim_data].[dbo].[tekton_results]""")
 
 
-sql_cmd1 = text("""SELECT TOP (10) [tick_times]
+sql_cmd1 = text(f"""SELECT TOP (10) [tick_times]
           ,[anvil_count]
           ,[hammer_count]
           ,[cm]
@@ -84,9 +117,9 @@ sql_cmd1 = text("""SELECT TOP (10) [tick_times]
           ,[vuln]
           ,[book_of_water]
       FROM [tekton_sim_data].[dbo].[tekton_results]
-      WHERE ([b_ring] = 1 AND [brim] = 0)""")
+      WHERE ([b_ring] = {0} AND [brim] = {x})""")
 
-sql_cmd2 = text("""SELECT TOP (10) [tick_times]
+sql_cmd2 = text(f"""SELECT TOP (10) [tick_times]
           ,[anvil_count]
           ,[hammer_count]
           ,[cm]
@@ -103,42 +136,43 @@ sql_cmd2 = text("""SELECT TOP (10) [tick_times]
           ,[vuln]
           ,[book_of_water]
       FROM [tekton_sim_data].[dbo].[tekton_results]
-      WHERE ([b_ring] = 0 AND [brim] = 1)""")
+      WHERE ([b_ring] = {selection.b_ring_check} AND [brim] = {selection.brim_check})""")
 
-headings = ('tick_times', 'anvil_count', 'hammer_count', 'cm', 'inq',
-       'five_tick_only', 'fang', 'b_ring', 'brim', 'feros', 'tort',
-       'lightbearer', 'preveng', 'veng_camp', 'vuln', 'book_of_water')
+headings = ('tick_times', 'anvil_count', 'hammer_count', 'cm', 'inq', 'five_tick_only', 'fang', 'b_ring', 'brim', 'feros', 'tort', 'lightbearer', 'preveng', 'veng_camp', 'vuln', 'book_of_water')
 
 
-# @app.route('/table/')
-# def table():
-#     data = db.session.execute(sql_cmd)
-#     # data = pd.DataFrame(data)
-#     return render_template(r"table.html", headings=headings, data=data)
+class TektonResults(db.Model):
+    id = db.Column('ID', db.Integer, primary_key=True)
+    tick_times = db.Column('tick_times', db.Integer)
+    b_ring = db.Column('b_ring', db.Integer)
+    brim = db.Column('brim', db.Integer)
+    anvil_count = db.Column('anvil_count', db.Integer)
 
 
 @app.route("/table/", methods=['GET', 'POST',])
 def table():
-    global main_sql
+    global x
     if request.method == 'POST':
-        if request.form.get('action1') == 'b_ring':
-            main_sql = sql_cmd1
-        elif request.form.get('action2') == 'brim':
-            main_sql = sql_cmd2
-        else:
-            main_sql = sql_cmd
-        return redirect(database()), main_sql
+
+        if request.form.get('B ring') == 1:
+            selection.b_ring_check = request.form.get('B ring')
+        elif request.form.get('Brim') == 1:
+            x = request.form.get('Brim')
+        return redirect(database())
     elif request.method == 'GET':
-        data = db.session.execute(sql_cmd)
-        return render_template(r"table_refresh.html", headings=headings, data=data)
+        data = db.session.query(TektonResults).where(TektonResults.b_ring == 1).limit(5).all()
+
+        return render_template(r"table.html", headings=headings, data=data)
 
 
-@app.route('/database', methods=['POST'])
+@app.route('/database', methods=['GET', 'POST',])
 def database():
-    print('main:', main_sql)
-    data = db.session.execute(main_sql)
+    selection.brim_check = request.form.get('Brim')
+    data_n = session.query(TektonResults).where(TektonResults.brim == 1).limit(5)
 
-    return render_template(r"table_refresh.html", headings=headings, data=data)
+    df = pd.read_sql(data_n.statement, con=db_engine)
+    print(df)
+    return render_template(r"table_refresh.html", titles=df.columns.values, tables=[df.to_html(classes='data_n')])
 
 
 if __name__ == '__main__':

@@ -1,24 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Index{% endblock %}
 {% block head %}
-<form method="post" action="/database">
-        <input type="submit" value="b_ring" name="B ring"/>
-        <input type="submit" value="brim" name="Brim" />
-</form>
-  {{ super() }}
+<!--<form method="post" action="/database">-->
+<!--        <input type="submit" value="b_ring" name="B ring"/>-->
+<!--        <input type="submit" value="brim" name="Brim" />-->
+<!--</form>-->
+<!--  {{ super() }}-->
 <table>
-  <tr>
-    {% for header in headings %}
-    <th>{{ header }}</th>
+  {% for table in tables %}
+            {{titles[loop.index]}}
+            {{ table|safe }}
     {% endfor %}
-  </tr>
-  {% for row in data %}
-  <tr>
-    {% for cell in row %}
-    <td>{{ cell }}</td>
-    {% endfor %}
-  </tr>
-  {% endfor %}
 </table>
   <style type="text/css">
     .important { color: #336699; }
