@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from sqlalchemy import URL
 from flask import render_template, Flask, request, redirect, url_for
-from sqlalchemy import create_engine, MetaData, engine
+from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 from sqlalchemy.ext.declarative import declarative_base
@@ -104,6 +104,7 @@ class TektonResults(db.Model):
     vuln = db.Column('vuln', db.Integer)
     vuln_book = db.Column('book_of_water', db.Integer)
 
+
 @app.route("/table/", methods=['GET', 'POST',])
 def table():
     global x
@@ -122,13 +123,20 @@ def table():
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
-    data_n = session.query(TektonResults).where(TektonResults.brim == 1).limit(5)
+    print(request.form.get('B ring'))
+    if request.form.get('B ring') == 'b ring':
+        print('this executed')
+        data_n = session.query(TektonResults).where(TektonResults.b_ring == 1)
+    elif request.form.get('Brim') == 'brim':
+        data_n = session.query(TektonResults).where(TektonResults.brim == 1).limit(7)
+    else:
+        data_n = session.query(TektonResults).limit(5)
 
     df = pd.read_sql(data_n.statement, con=db_engine)
-    sub115 = len(df[(df['tick_times'] <= 125)].copy())
-    sub_100 = len(df[(df['tick_times'] <= 100)].copy())
-    one_anvil_num = len(df[(df['anvil_count'] <= 1)].copy())
-    two_anvil_num = len(df[(df['anvil_count'] == 2)].copy())
+    # sub_115 = len(df[(df['tick_times'] <= 125)].copy())
+    # sub_100 = len(df[(df['tick_times'] <= 100)].copy())
+    # one_anvil_num = len(df[(df['anvil_count'] <= 1)].copy())
+    # two_anvil_num = len(df[(df['anvil_count'] == 2)].copy())
 
     print(df)
     return render_template(r"table_refresh.html", titles=df.columns.values, tables=[df.to_html(classes='data_n')])
