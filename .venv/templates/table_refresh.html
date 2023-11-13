@@ -8,7 +8,6 @@
 <!--  {{ super() }}-->
 <table>
   {% for table in tables %}
-            {{titles[loop.index]}}
             {{ table|safe }}
     {% endfor %}
 </table>

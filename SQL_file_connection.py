@@ -1,4 +1,5 @@
 import pandas as pd
+import wtforms
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from sqlalchemy import URL
@@ -6,6 +7,8 @@ from flask import render_template, Flask, request, redirect, url_for
 from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
+from flask_wtf import FlaskForm
+from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField
 from sqlalchemy.ext.declarative import declarative_base
 from urllib import parse
 
@@ -31,12 +34,13 @@ db_engine = create_engine(connection_url, echo=False)
 
 SessionObject = sessionmaker(bind=db_engine)
 session = SessionObject()
-# Base = declarative_base()
-# Base.metadata.reflect(engine)
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_url
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['SECRET_KEY'] = 'any secret string'
 
 # initialize the app with Flask-SQLAlchemy
 db.init_app(app)
@@ -55,7 +59,6 @@ def testdb():
         hed = '<h1>Something is broken.</h1>'
         return hed + error_text
 
-x = 0
 
 class Gear:
     def __init__(self, b_ring_check, brim_check, ultor_check, feros_check, fang_check,
@@ -88,58 +91,61 @@ headings = ('tick_times', 'anvil_count', 'hammer_count', 'cm', 'inq', 'five_tick
 class TektonResults(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     tick_times = db.Column('tick_times', db.Integer)
-    b_ring = db.Column('b_ring', db.Integer)
-    brim = db.Column('brim', db.Integer)
     anvil_count = db.Column('anvil_count', db.Integer)
     hammer_count = db.Column('hammer_count', db.Integer)
-    cm = db.Column('cm', db.Integer)
-    inq = db.Column('inq', db.Integer)
-    feros = db.Column('feros', db.Integer)
-    tort = db.Column('tort', db.Integer)
-    fang = db.Column('fang', db.Integer)
-    five_tick = db.Column('five_tick_only', db.Integer)
-    lightbearer = db.Column('lightbearer', db.Integer)
-    pre_veng = db.Column('preveng', db.Integer)
-    veng_camp = db.Column('veng_camp', db.Integer)
-    vuln = db.Column('vuln', db.Integer)
-    vuln_book = db.Column('book_of_water', db.Integer)
+    hp_after_pre_anvil = db.Column('hp_after_pre_anvil', db.Integer)
+    ring = db.Column('ring', db.String)
+    cm = db.Column('cm', db.Boolean)
+    inq = db.Column('inq', db.Boolean)
+    feros = db.Column('feros', db.Boolean)
+    tort = db.Column('tort', db.Boolean)
+    fang = db.Column('fang', db.Boolean)
+    five_tick = db.Column('five_tick_only', db.Boolean)
+    pre_veng = db.Column('preveng', db.Boolean)
+    veng_camp = db.Column('veng_camp', db.Boolean)
+    vuln = db.Column('vuln', db.Boolean)
+    vuln_book = db.Column('book_of_water', db.Boolean)
 
 
-@app.route("/table/", methods=['GET', 'POST',])
+class QueryForm(FlaskForm):
+    ring = SelectField('Your ring', choices=[('b_ring', 'B ring'), ('brim', 'Brim'), ('ultor_ring', 'Ultor Ring'), ('lightbearer', 'Lightbearer')])
+    submit = SubmitField("Submit")
+
+
+@app.route("/table", methods=['GET', 'POST',])
 def table():
-    global x
+    form_q = QueryForm()
     if request.method == 'POST':
+        return redirect(url_for("database"))
+    return render_template(r"table.html", form=form_q)
 
-        if request.form.get('B ring') == 1:
-            selection.b_ring_check = request.form.get('B ring')
-        elif request.form.get('Brim') == 1:
-            x = request.form.get('Brim')
-        return redirect(database())
-    elif request.method == 'GET':
-        data = db.session.query(TektonResults).where(TektonResults.b_ring == 1).limit(5).all()
 
-        return render_template(r"table.html", headings=headings, data=data)
+form_list = ['B ring', 'Brim', 'CM', 'Inq', 'Feros', 'Tort', 'Fang', 'Five Tick Only', 'Ultor', 'Lightbearer',
+             'Pre Veng', 'Veng Camp', 'Vuln', 'Book of Water']
+form_value = ['b ring', 'brim', 'cm', 'inq', 'feros', 'tort', 'fang', 'five_tick_only', 'ultor_ring', 'lightbearer',
+              'preveng', 'veng_camp', 'vuln', 'vuln_book']
+# query_params = [TektonResults.b_ring, TektonResults.brim, TektonResults.cm, TektonResults.inq, TektonResults.feros,
+#                 TektonResults.tort, TektonResults.fang, TektonResults.five_tick, TektonResults.ultor_ring,
+#                 TektonResults.lightbearer, TektonResults.pre_veng, TektonResults.veng_camp, TektonResults.vuln,
+#                 TektonResults.vuln_book]
 
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
-    print(request.form.get('B ring'))
-    if request.form.get('B ring') == 'b ring':
-        print('this executed')
-        data_n = session.query(TektonResults).where(TektonResults.b_ring == 1)
-    elif request.form.get('Brim') == 'brim':
-        data_n = session.query(TektonResults).where(TektonResults.brim == 1).limit(7)
-    else:
-        data_n = session.query(TektonResults).limit(5)
+    if request.method == 'POST':
+        form_q = QueryForm()
+        print(form_q.data)
+        print(form_q.ring.data)
+        ring = str(form_q.ring.data)
+        data_n = session.query(TektonResults).where(TektonResults.ring == ring).limit(7)
+        df = pd.read_sql(data_n.statement, con=db_engine)
+        # sub_115 = len(df[(df['tick_times'] <= 125)].copy())
+        # sub_100 = len(df[(df['tick_times'] <= 100)].copy())
+        # one_anvil_num = len(df[(df['anvil_count'] <= 1)].copy())
+        # two_anvil_num = len(df[(df['anvil_count'] == 2)].copy())
 
-    df = pd.read_sql(data_n.statement, con=db_engine)
-    # sub_115 = len(df[(df['tick_times'] <= 125)].copy())
-    # sub_100 = len(df[(df['tick_times'] <= 100)].copy())
-    # one_anvil_num = len(df[(df['anvil_count'] <= 1)].copy())
-    # two_anvil_num = len(df[(df['anvil_count'] == 2)].copy())
-
-    print(df)
-    return render_template(r"table_refresh.html", titles=df.columns.values, tables=[df.to_html(classes='data_n')])
+        print(df)
+        return render_template(r"table_refresh.html", tables=[df.to_html(classes='data_n')])
 
 
 if __name__ == '__main__':

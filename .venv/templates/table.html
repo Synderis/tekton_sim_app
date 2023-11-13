@@ -1,25 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Index{% endblock %}
 {% block head %}
-<form method="post" action="/database">
-        <button type="submit" name="B ring" value="b ring">B ring</button>
-        <button type="submit" name="Brim" value="brim">Brim</button>
+<form method="post" action="/database" class="form" >
+  <br>
+  {{ form.ring.label }}
+  {{ form.ring(class="form-control") }}
+  <br>
+  {{ form.submit(class="btn btn-primary") }}
+<!--<form method="post" action="/database">-->
+<!--    <fieldset>-->
+<!--    <button type="button" name="B ring" value="b ring">B ring</button>-->
+<!--    <button type="button" name="Brim" value="brim">Brim</button>-->
+<!--    <button type="button" name="CM" value="cm">CM</button>-->
+<!--    <button type="button" name="Inq" value="inq">Inq</button>-->
+<!--    <button type="button" name="Feros" value="feros">Feros</button>-->
+<!--    <button type="button" name="Tort" value="tort">Tort</button>-->
+<!--    <button type="button" name="Fang" value="fang">Fang</button>-->
+<!--    <button type="button" name="Five Tick Only" value="five_tick_only">Five Tick Only</button>-->
+<!--    <button type="button" name="Ultor" value="ultor_ring">Ultor Ring</button>-->
+<!--    <button type="button" name="Lightbearer" value="lightbearer">Lightbearer</button>-->
+<!--    <button type="button" name="Pre Veng" value="preveng">Pre Veng</button>-->
+<!--    <button type="button" name="Veng Camp" value="veng_camp">Veng Camp</button>-->
+<!--    <button type="button" name="Vuln" value="vuln">Vuln</button>-->
+<!--    <button type="button" name="Book of Water" value="vuln_book">Book of Water</button>-->
+<!--    </fieldset>-->
+<!--    <button type="submit" name="Submit" value="Send">Submit</button>-->
 </form>
-  {{ super() }}
-<table>
-  <tr>
-    {% for header in headings %}
-    <th>{{ header }}</th>
-    {% endfor %}
-  </tr>
-  {% for row in data %}
-  <tr>
-    {% for cell in row %}
-    <td>{{ cell }}</td>
-    {% endfor %}
-  </tr>
-  {% endfor %}
-</table>
+<!--<table>-->
+<!--  <tr>-->
+<!--    {% for header in headings %}-->
+<!--    <th>{{ header }}</th>-->
+<!--    {% endfor %}-->
+<!--  </tr>-->
+<!--  {% for row in data %}-->
+<!--  <tr>-->
+<!--    {% for cell in row %}-->
+<!--    <td>{{ cell }}</td>-->
+<!--    {% endfor %}-->
+<!--  </tr>-->
+<!--  {% endfor %}-->
+<!--</table>-->
   <style type="text/css">
     .important { color: #336699; }
   </style>
