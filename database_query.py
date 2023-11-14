@@ -52,21 +52,15 @@ def database():
                                                     TektonResults.vuln_book == vuln_book_val
                                                     ).limit(7)
         print(data_n.statement)
-        trials = 'temp'
-        df = pd.read_sql(data_n.statement, con=db_engine)
-        sub_115 = len(df[(df['tick_times'] <= 125)].copy())
-        sub_100 = len(df[(df['tick_times'] <= 100)].copy())
-        no_anvil_num = len(df[(df['anvil_count'] == 0)].copy())
-        one_anvil_num = len(df[(df['anvil_count'] <= 1)].copy())
-        two_anvil_num = len(df[(df['anvil_count'] == 2)].copy())
-        three_anvil_num = len(df[(df['anvil_count'] > 2)].copy())
-        sub_115_df = output_formatter(sub_115, one_anvil_num, True)
-        sub_100_df = output_formatter(sub_100, one_anvil_num, True)
-        table_dataframe = pd.DataFrame(
-            {('trials = ' + str(trials)): ['no anvil', 'one anvil', 'two anvil', 'three or more'],
-             'total, % total': [no_anvil_num, one_anvil_num, two_anvil_num, three_anvil_num],
-             'total, sub 1:15 %': ['N/A', sub_115_df, '0', '0'],
-             'total, sub 1:00 %': ['N/A', sub_100_df, '0', '0']})
+        fig = output_graph(df)
+        png_image = io.BytesIO()
+        FigureCanvas(fig).print_png(png_image)
+
+        # Encode PNG image to base64 string
+        png_image_b64_string = "data:image/png;base64,"
+        png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
+        model = LinearRegression()
+        model = model.fit(df[ ["anvil_count"] ], df["hp_after_pre_anvil"] )
 
         print(df)
         # return render_template(r"table_refresh.html", tables=[table_dataframe.to_html(classes='table_data', header=True)])
