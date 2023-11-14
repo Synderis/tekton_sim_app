@@ -64,4 +64,4 @@ def database():
 
         print(df)
         # return render_template(r"table_refresh.html", tables=[table_dataframe.to_html(classes='table_data', header=True)])
-        return render_template(r"table_refresh.html", tables=[df.to_html(classes='data_n')])
+        return render_template(r"table_refresh.html", tables=[df.to_html(classes='data_n')], image=png_image_b64_string)
