@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField
+from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField
 from sqlalchemy.ext.declarative import declarative_base
 from urllib import parse
 
@@ -108,7 +108,17 @@ class TektonResults(db.Model):
 
 
 class QueryForm(FlaskForm):
-    ring = SelectField('Your ring', choices=[('b_ring', 'B ring'), ('brim', 'Brim'), ('ultor_ring', 'Ultor Ring'), ('lightbearer', 'Lightbearer')])
+    ring = SelectField('Select ring', choices=[('b_ring', 'B ring'), ('brim', 'Brim'), ('ultor_ring', 'Ultor Ring'), ('lightbearer', 'Lightbearer')])
+    cm = BooleanField('CM', default=False)
+    inq = BooleanField('Inq', default=False)
+    feros = BooleanField('Feros', default=False)
+    tort = BooleanField('Tort', default=False)
+    fang = BooleanField('Fang', default=False)
+    five_tick = BooleanField('Five Tick Only', default=False)
+    pre_veng = BooleanField('Pre Veng', default=False)
+    veng_camp = BooleanField('Veng Camp', default=False)
+    vuln = BooleanField('Vuln', default=False)
+    vuln_book = BooleanField('Book of Water', default=False)
     submit = SubmitField("Submit")
 
 
@@ -124,10 +134,6 @@ form_list = ['B ring', 'Brim', 'CM', 'Inq', 'Feros', 'Tort', 'Fang', 'Five Tick 
              'Pre Veng', 'Veng Camp', 'Vuln', 'Book of Water']
 form_value = ['b ring', 'brim', 'cm', 'inq', 'feros', 'tort', 'fang', 'five_tick_only', 'ultor_ring', 'lightbearer',
               'preveng', 'veng_camp', 'vuln', 'vuln_book']
-# query_params = [TektonResults.b_ring, TektonResults.brim, TektonResults.cm, TektonResults.inq, TektonResults.feros,
-#                 TektonResults.tort, TektonResults.fang, TektonResults.five_tick, TektonResults.ultor_ring,
-#                 TektonResults.lightbearer, TektonResults.pre_veng, TektonResults.veng_camp, TektonResults.vuln,
-#                 TektonResults.vuln_book]
 
 
 @app.route('/database', methods=['GET', 'POST',])
@@ -136,8 +142,27 @@ def database():
         form_q = QueryForm()
         print(form_q.data)
         print(form_q.ring.data)
-        ring = str(form_q.ring.data)
-        data_n = session.query(TektonResults).where(TektonResults.ring == ring).limit(7)
+        ring_val = str(form_q.ring.data)
+        cm_val = bool(form_q.cm.data)
+        inq_val = bool(form_q.inq.data)
+        feros_val = bool(form_q.feros.data)
+        tort_val = bool(form_q.tort.data)
+        fang_val = bool(form_q.fang.data)
+        five_tick_val = bool(form_q.five_tick.data)
+        pre_veng_val = bool(form_q.pre_veng.data)
+        veng_camp_val =bool(form_q.veng_camp.data)
+        vuln_val = bool(form_q.vuln.data)
+        vuln_book_val = bool(form_q.vuln_book.data)
+        data_n = session.query(TektonResults).where(TektonResults.ring == ring_val, TektonResults.cm == cm_val,
+                                                    TektonResults.inq == inq_val, TektonResults.feros == feros_val,
+                                                    TektonResults.tort == tort_val, TektonResults.fang == fang_val,
+                                                    TektonResults.five_tick == five_tick_val,
+                                                    TektonResults.pre_veng == pre_veng_val,
+                                                    TektonResults.veng_camp == veng_camp_val,
+                                                    TektonResults.vuln == vuln_val,
+                                                    TektonResults.vuln_book == vuln_book_val
+                                                    ).limit(7)
+        print(data_n.statement)
         df = pd.read_sql(data_n.statement, con=db_engine)
         # sub_115 = len(df[(df['tick_times'] <= 125)].copy())
         # sub_100 = len(df[(df['tick_times'] <= 100)].copy())

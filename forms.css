@@ -1,0 +1,37 @@
+.form {
+  margin: 0 auto;
+  max-width: 30rem;
+  border: var(--border);
+  font-size: 1.2rem;
+
+  /* An explicit background is required here, as it's actually transparent by default, and we
+       don't want to see the shadow element behind */
+  background: var(--background-color);
+}
+.form__container {
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+}
+
+/* The following media queries allow for more padding inside the form as the window
+   size increases */
+@media screen and (min-width: 24.75em) {
+  .form__container {
+    padding-left: 2rem;
+  }
+}
+
+@media screen and (min-width: 30em) {
+  .form__container {
+    padding-left: 2.5rem;
+  }
+}
+.form__group {
+  /* Surrounds the label and input fields, placing the label above the input */
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.form__label {
+  margin-bottom: 0.5rem;
+}

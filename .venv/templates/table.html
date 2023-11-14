@@ -1,51 +1,78 @@
 {% extends "base.html" %}
 {% block title %}Index{% endblock %}
+<!--{%- block head_content %}-->
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}" />-->
+<!--{% endblock %}-->
 {% block head %}
 <form method="post" action="/database" class="form" >
+  <div class="form__container">
+    <div class="form__group">
+        {{ form.cm.label }}
+        {{ form.cm(class="form-control", checked=True) }}
+        {{ form.inq.label }}
+        {{ form.inq(class="form-control", checked=True) }}
+        {{ form.feros.label }}
+        {{ form.feros(class="form-control") }}
+        {{ form.tort.label }}
+        {{ form.tort(class="form-control") }}
+        {{ form.fang.label }}
+        {{ form.fang(class="form-control") }}
+        {{ form.five_tick.label }}
+        {{ form.five_tick(class="form-control") }}
+        {{ form.pre_veng.label }}
+        {{ form.pre_veng(class="form-control", checked=True) }}
+        {{ form.vuln.label }}
+        {{ form.vuln(class="form-control", checked=True) }}
+        {{ form.vuln_book.label }}
+        {{ form.vuln_book(class="form-control") }}
+
+    </div>
+  </div>
   <br>
-  {{ form.ring.label }}
-  {{ form.ring(class="form-control") }}
-  <br>
+    {{ form.ring.label }}
+    {{ form.ring(class="form-control") }}
   {{ form.submit(class="btn btn-primary") }}
-<!--<form method="post" action="/database">-->
-<!--    <fieldset>-->
-<!--    <button type="button" name="B ring" value="b ring">B ring</button>-->
-<!--    <button type="button" name="Brim" value="brim">Brim</button>-->
-<!--    <button type="button" name="CM" value="cm">CM</button>-->
-<!--    <button type="button" name="Inq" value="inq">Inq</button>-->
-<!--    <button type="button" name="Feros" value="feros">Feros</button>-->
-<!--    <button type="button" name="Tort" value="tort">Tort</button>-->
-<!--    <button type="button" name="Fang" value="fang">Fang</button>-->
-<!--    <button type="button" name="Five Tick Only" value="five_tick_only">Five Tick Only</button>-->
-<!--    <button type="button" name="Ultor" value="ultor_ring">Ultor Ring</button>-->
-<!--    <button type="button" name="Lightbearer" value="lightbearer">Lightbearer</button>-->
-<!--    <button type="button" name="Pre Veng" value="preveng">Pre Veng</button>-->
-<!--    <button type="button" name="Veng Camp" value="veng_camp">Veng Camp</button>-->
-<!--    <button type="button" name="Vuln" value="vuln">Vuln</button>-->
-<!--    <button type="button" name="Book of Water" value="vuln_book">Book of Water</button>-->
-<!--    </fieldset>-->
-<!--    <button type="submit" name="Submit" value="Send">Submit</button>-->
+  <br>
 </form>
-<!--<table>-->
-<!--  <tr>-->
-<!--    {% for header in headings %}-->
-<!--    <th>{{ header }}</th>-->
-<!--    {% endfor %}-->
-<!--  </tr>-->
-<!--  {% for row in data %}-->
-<!--  <tr>-->
-<!--    {% for cell in row %}-->
-<!--    <td>{{ cell }}</td>-->
-<!--    {% endfor %}-->
-<!--  </tr>-->
-<!--  {% endfor %}-->
-<!--</table>-->
-  <style type="text/css">
-    .important { color: #336699; }
-  </style>
-{% endblock %}
-{% block content %}
-  <h1>Index</h1>
-  <p class="important">
-    Welcome on my awesome homepage.
+<style>
+.form {
+  margin: 0 auto;
+  max-width: 30rem;
+  border: var(--border);
+  font-size: 1.2rem;
+
+  /* An explicit background is required here, as it's actually transparent by default, and we
+       don't want to see the shadow element behind */
+  background: var(--background-color);
+}
+.form__container {
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+}
+
+/* The following media queries allow for more padding inside the form as the window
+   size increases */
+@media screen and (min-width: 24.75em) {
+  .form__container {
+    padding-left: 2rem;
+  }
+}
+
+@media screen and (min-width: 30em) {
+  .form__container {
+    padding-left: 2.5rem;
+  }
+}
+.form__group {
+  /* Surrounds the label and input fields, placing the label above the input */
+  float: left;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.form__label {
+  display: inline;
+  margin-bottom: 0.5rem;
+}
+</style>
 {% endblock %}
