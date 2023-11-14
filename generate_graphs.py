@@ -3,18 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-from flask import Response
-from SQL_file_connection import app
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-
-import io
-
-@app.route('/plot.png')
-def plot_img(results_df):
-    output_graph(results_df)
-    output = io.BytesIO()
-    FigureCanvas(plt.gcf()).print_png(output)
-    return Response(output.getvalue(), mimetype='image/png')
 
 
 def output_graph(results_df):
@@ -234,4 +222,4 @@ def output_graph(results_df):
     one_anvil_aux_plot.yaxis.grid(True, color='black')
     plt.subplots_adjust(wspace=.25, hspace=0, right=.93, left=0.05, top=.90, bottom=.07)
     one_anvil_main_plot.set_facecolor((0.0, 0.0, 0.0, 0.0))
-    return
+    return fig
