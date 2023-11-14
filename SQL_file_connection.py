@@ -60,31 +60,6 @@ def testdb():
         return hed + error_text
 
 
-class Gear:
-    def __init__(self, b_ring_check, brim_check, ultor_check, feros_check, fang_check,
-                 cm_check, inq_check, tort_check, lightbearer_check, preveng_check, veng_camp_check, vuln_check,
-                 book_of_water_check, five_tick_only_check):
-        self.b_ring_check = b_ring_check
-        self.brim_check = brim_check
-        self.ultor_check = ultor_check
-        self.feros_check = feros_check
-        self.fang_check = fang_check
-        self.cm_check = cm_check
-        self.inq_check = inq_check
-        self.tort_check = tort_check
-        self.lightbearer_check = lightbearer_check
-        self.preveng_check = preveng_check
-        self.veng_camp_check = veng_camp_check
-        self.vuln_check = vuln_check
-        self.book_of_water_check = book_of_water_check
-        self.five_tick_only_check = five_tick_only_check
-
-
-selection = Gear(b_ring_check=1, brim_check=0, ultor_check=0, feros_check=0,
-                   fang_check=0, cm_check=1, inq_check=1, tort_check=0, lightbearer_check=0,
-                   preveng_check=0, veng_camp_check=0, vuln_check=0, book_of_water_check=0, five_tick_only_check=0)
-
-
 headings = ('tick_times', 'anvil_count', 'hammer_count', 'cm', 'inq', 'five_tick_only', 'fang', 'b_ring', 'brim', 'feros', 'tort', 'lightbearer', 'preveng', 'veng_camp', 'vuln', 'book_of_water')
 
 
@@ -129,11 +104,6 @@ def table():
         return redirect(url_for("database"))
     return render_template(r"table.html", form=form_q)
 
-
-form_list = ['B ring', 'Brim', 'CM', 'Inq', 'Feros', 'Tort', 'Fang', 'Five Tick Only', 'Ultor', 'Lightbearer',
-             'Pre Veng', 'Veng Camp', 'Vuln', 'Book of Water']
-form_value = ['b ring', 'brim', 'cm', 'inq', 'feros', 'tort', 'fang', 'five_tick_only', 'ultor_ring', 'lightbearer',
-              'preveng', 'veng_camp', 'vuln', 'vuln_book']
 
 
 @app.route('/database', methods=['GET', 'POST',])
