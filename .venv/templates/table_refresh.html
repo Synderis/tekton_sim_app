@@ -1,50 +1,35 @@
 {% extends "base.html" %}
 {% block title %}Index{% endblock %}
+{% from 'bootstrap/form.html' import render_form %}
 {% block head %}
-<head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-</head>
 <div class="container">
-   <div>
-     <img src="{{ image }}" class="high-quality" style="width:1500px;height:800px; float:left;"/>
-   </div>
+    <div>
+        <img src="{{ image }}" class="high-quality" style="width:1500px;height:800px; float:left;"/>
+    </div>
+    {{ render_form(form_e) }}
     <div class="table-div">
-    <table class="misc-table" style="width:100%;" >
-        {% for table in misc_table %}
+        <table class="misc-table" style="width:100%;">
+            {% for table in misc_table %}
             {{ table|safe }}
-    {% endfor %}
-    </table>
-    <input type="number" id="input">
-    <button onclick="sendData()">Send Data</button>
-    <div id="output"></div>
-    <script>
-        function sendData() {
-            var value = document.getElementById('input').value;
-            $.ajax({
-                url: '/database',
-                type: 'POST',
-                data: { 'data': value },
-                success: function(response) {
-                    document.getElementById('output').innerHTML = response;
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
-        }
-    </script>
-  </div>
+            {% endfor %}
+        </table>
+        <form method="post" action="" class="form-inline">
+            {{ form_e.hp_estimate }}
+            {{ form_e.submit(class="btn btn-primary") }}
+        </form>
+
+    </div>
     <div class="data-table">
-    <table class="result-table" style="width:100%;">
-    <caption class="important">Output Snapshot</caption>
-    {% for table in data_table %}
+        <table class="result-table" style="width:100%;">
+            <caption class="important">Output Snapshot</caption>
+            {% for table in data_table %}
             {{ table|safe }}
-    {% endfor %}
-</table>
-</div>
+            {% endfor %}
+        </table>
+    </div>
 </div>
 
-  <style type="text/css">
+<style type="text/css">
     .important { color:  #ff0000; }
      caption {
   display: inline;
@@ -64,11 +49,11 @@ top:800px;
 position:absolute;
 left: 1515px;
 }
-  </style>
+</style>
 
 {% endblock %}
 {% block content %}
-  <h1>Index</h1>
-  <p class="important">
+<h1>Index</h1>
+<p class="important">
     Welcome on my awesome homepage.
-{% endblock %}
+    {% endblock %}
