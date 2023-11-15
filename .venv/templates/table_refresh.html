@@ -1,21 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Index{% endblock %}
 {% block head %}
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
 <div class="container">
    <div>
      <img src="{{ image }}" class="high-quality" style="width:1500px;height:800px; float:left;"/>
    </div>
     <div class="table-div">
     <table class="misc-table" style="width:100%;" >
-        <tr>
-        misc data will go here
-        </tr>
+        {% for table in misc_table %}
+            {{ table|safe }}
+    {% endfor %}
     </table>
+    <input type="number" id="input">
+    <button onclick="sendData()">Send Data</button>
+    <div id="output"></div>
+    <script>
+        function sendData() {
+            var value = document.getElementById('input').value;
+            $.ajax({
+                url: '/database',
+                type: 'POST',
+                data: { 'data': value },
+                success: function(response) {
+                    document.getElementById('output').innerHTML = response;
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
   </div>
     <div class="data-table">
     <table class="result-table" style="width:100%;">
     <caption class="important">Output Snapshot</caption>
-    {% for table in tables %}
+    {% for table in data_table %}
             {{ table|safe }}
     {% endfor %}
 </table>

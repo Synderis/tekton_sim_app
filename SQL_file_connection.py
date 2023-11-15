@@ -10,7 +10,18 @@ from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 from flask_wtf import FlaskForm
-
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
 from generate_graphs import output_graph
 from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField
 from sqlalchemy.ext.declarative import declarative_base
@@ -137,8 +148,7 @@ def database():
                                                     TektonResults.pre_veng == pre_veng_val,
                                                     TektonResults.veng_camp == veng_camp_val,
                                                     TektonResults.vuln == vuln_val,
-                                                    TektonResults.vuln_book == vuln_book_val
-                                                    )
+                                                    TektonResults.vuln_book == vuln_book_val)
         print(data_n.statement)
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
@@ -155,7 +165,66 @@ def database():
         png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
         plt.close()
         print(df)
-        return render_template(r"table_refresh.html", tables=[df_new.to_html(classes='data_n')], image=png_image_b64_string)
+        one_anvils = df[df['anvil_count'] == 1].copy()
+        avg_hp = one_anvils['hp_after_pre_anvil'].mean()
+        max_hp = one_anvils['hp_after_pre_anvil'].max()
+        min_hp = one_anvils['hp_after_pre_anvil'].min()
+        if not request.form.get('data'):
+            estimate = request.form.get('data')
+            total_above = (len(df[df['hp_after_pre_anvil'] > estimate].copy()) / len(df)) ** 100
+            total_below = (len(df[df['hp_after_pre_anvil'] < estimate].copy()) / len(df)) ** 100
+            total_above_subset = (len(df[(df['hp_after_pre_anvil'] > estimate) & (df['anvil_count'] == 1)].copy()) / len(df)) ** 100
+            total_below_subset = (len(df[(df['hp_after_pre_anvil'] < estimate) & (df['anvil_count'] == 1)].copy()) / len(df)) ** 100
+        else:
+            total_above = 1 / len(df) ** 100
+            total_below = 1 / len(df) ** 100
+            total_above_subset = 1 / len(df) ** 100
+            total_below_subset = 1 / len(df) ** 100
+        misc_table = {'Average pre anvil hp': avg_hp, 'Max pre anvil hp': max_hp, 'Min pre anvil hp': min_hp,
+                      '% above input': f'{total_above}%', '% below input': f'{total_below}%',
+                      '% 1 anvils above input': f'{total_above_subset}%',
+                      '% 1 anvils below input': f'{total_below_subset}%'}
+        misc_table = pd.DataFrame([misc_table])
+        # print(df.describe())
+        # df = df[['tick_times', 'anvil_count', 'hammer_count', 'hp_after_pre_anvil']]
+        # array = df.values
+        # X = array[:, 0:3]
+        # y = array[:, 3]
+        # X_train, X_validation, Y_train, Y_validation = train_test_split(X, y, test_size=0.20, random_state=1)
+        # ...
+        # # Spot Check Algorithms
+        # models = []
+        # models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr')))
+        # models.append(('LDA', LinearDiscriminantAnalysis()))
+        # models.append(('KNN', KNeighborsClassifier()))
+        # models.append(('CART', DecisionTreeClassifier()))
+        # models.append(('NB', GaussianNB()))
+        # models.append(('SVM', SVC(gamma='auto')))
+        # # evaluate each model in turn
+        # results = []
+        # names = []
+        # for name, model in models:
+        #     kfold = StratifiedKFold(n_splits=2, random_state=1, shuffle=True)
+        #     cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring=None)
+        #     results.append(cv_results)
+        #     names.append(name)
+        #     print('%s: %f (%f)' % (name, cv_results.mean(), cv_results.std()))
+        # model = SVC(gamma='auto')
+        # model.fit(X_train, Y_train)
+        # predictions = model.predict(X_validation)
+        # print(accuracy_score(Y_validation, predictions))
+        # print(confusion_matrix(Y_validation, predictions))
+        # print(classification_report(Y_validation, predictions))
+        return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n')], misc_table=[misc_table.to_html(classes='data_n')], image=png_image_b64_string)
+
+
+@app.route('/process', methods=['POST'])
+def process():
+    data = request.form.get('data')
+    # process the data using Python code
+
+    result = int(data) * 2
+    return str(result)
 
 
 if __name__ == '__main__':
