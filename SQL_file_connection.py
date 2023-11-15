@@ -1,6 +1,8 @@
 import pandas as pd
 import wtforms
 from flask_sqlalchemy import SQLAlchemy
+import matplotlib
+from matplotlib import pyplot as plt
 from sqlalchemy.sql import text
 from sqlalchemy import URL
 from flask import render_template, Flask, request, redirect, url_for
@@ -8,9 +10,14 @@ from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 from flask_wtf import FlaskForm
+
+from generate_graphs import output_graph
 from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField
 from sqlalchemy.ext.declarative import declarative_base
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from urllib import parse
+import io
+import base64
 
 
 # this variable, db, will be used for all SQLAlchemy commands
@@ -45,6 +52,7 @@ app.config['SECRET_KEY'] = 'any secret string'
 # initialize the app with Flask-SQLAlchemy
 db.init_app(app)
 
+# app.register_blueprint(database_bp)
 
 # NOTHING BELOW THIS LINE NEEDS TO CHANGE
 # this route will test the database connection - and nothing more
@@ -83,7 +91,7 @@ class TektonResults(db.Model):
 
 
 class QueryForm(FlaskForm):
-    ring = SelectField('Select ring', choices=[('b_ring', 'B ring'), ('brim', 'Brim'), ('ultor_ring', 'Ultor Ring'), ('lightbearer', 'Lightbearer')])
+    ring = SelectField('Select ring', choices=[('b_ring', 'B ring'), ('brim', 'Brim'), ('ultor_ring', 'Ultor Ring'), ('lightbearer', 'Lightbearer'), (None, 'None')])
     cm = BooleanField('CM', default=False)
     inq = BooleanField('Inq', default=False)
     feros = BooleanField('Feros', default=False)
@@ -105,7 +113,6 @@ def table():
     return render_template(r"table.html", form=form_q)
 
 
-
 @app.route('/database', methods=['GET', 'POST',])
 def database():
     if request.method == 'POST':
@@ -120,7 +127,7 @@ def database():
         fang_val = bool(form_q.fang.data)
         five_tick_val = bool(form_q.five_tick.data)
         pre_veng_val = bool(form_q.pre_veng.data)
-        veng_camp_val =bool(form_q.veng_camp.data)
+        veng_camp_val = bool(form_q.veng_camp.data)
         vuln_val = bool(form_q.vuln.data)
         vuln_book_val = bool(form_q.vuln_book.data)
         data_n = session.query(TektonResults).where(TektonResults.ring == ring_val, TektonResults.cm == cm_val,
@@ -131,16 +138,24 @@ def database():
                                                     TektonResults.veng_camp == veng_camp_val,
                                                     TektonResults.vuln == vuln_val,
                                                     TektonResults.vuln_book == vuln_book_val
-                                                    ).limit(7)
+                                                    )
         print(data_n.statement)
+        matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
-        # sub_115 = len(df[(df['tick_times'] <= 125)].copy())
-        # sub_100 = len(df[(df['tick_times'] <= 100)].copy())
-        # one_anvil_num = len(df[(df['anvil_count'] <= 1)].copy())
-        # two_anvil_num = len(df[(df['anvil_count'] == 2)].copy())
-
+        fig = output_graph(df)
+        fig.dpi = 100
+        fig.set_figwidth(16)
+        fig.set_figheight(9)
+        fig.subplots_adjust(wspace=.2, hspace=.05, right=.95, left=0.04, top=.92, bottom=.07)
+        png_image = io.BytesIO()
+        FigureCanvas(fig).print_png(png_image)
+        df_new = df.iloc[0:7].copy()
+        # Encode PNG image to base64 string
+        png_image_b64_string = "data:image/png;base64,"
+        png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
+        plt.close()
         print(df)
-        return render_template(r"table_refresh.html", tables=[df.to_html(classes='data_n')])
+        return render_template(r"table_refresh.html", tables=[df_new.to_html(classes='data_n')], image=png_image_b64_string)
 
 
 if __name__ == '__main__':

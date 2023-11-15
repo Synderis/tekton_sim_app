@@ -3,12 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import inflect
 
 
 def output_graph(results_df):
-    trials = 10000
+    p = inflect.engine()
+    trials = len(results_df)
     tick_times = results_df['tick_times'].tolist()
-    tick_times_raw = tick_times
     no_anvils = len(results_df[(results_df['anvil_count'] == 0)].copy())
     one_anvils = len(results_df[(results_df['anvil_count'] == 1)].copy())
     two_anvils = len(results_df[(results_df['anvil_count'] == 2)].copy())
@@ -24,12 +25,6 @@ def output_graph(results_df):
     tick_times_df = tick_times_df[['tick_times', 'completion']]
     tick_times_one_anvil = tick_times_df[tick_times_df['tick_times'] <= 150][['tick_times']].copy()
 
-    tick_times_raw = tick_times
-    hist2, bin_edges2 = np.histogram(tick_times_raw, density=True)
-    diff_bin_edge = np.diff(bin_edges2)
-    data_ = hist2 * diff_bin_edge
-
-    cum_cdf_raw = np.cumsum(data_, axis=0)
     sub_115 = len(results_df[(results_df['tick_times'] <= 125)].copy())
     sub_100 = len(results_df[(results_df['tick_times'] <= 100)].copy())
 
@@ -111,9 +106,11 @@ def output_graph(results_df):
     xd = ['gray', 'gray', 'gray', 'gray']
     silver = ["silver", "silver", "silver", "silver"]
     colors = [silver, silver, silver, silver]
+
     mpl_table = ax1.table(cellText=table_dataframe.values,
                           colLabels=table_dataframe.columns, cellLoc='center', rowLoc='center', loc='upper right',
                           cellColours=colors, colColours=xd)
+
     mpl_table.auto_set_font_size(False)
     ax1.axis(False)
     mpl_table.set_fontsize(9)
@@ -121,6 +118,7 @@ def output_graph(results_df):
     mpl_table2 = ax2.table(cellText=table_dataframe2.values,
                            colLabels=table_dataframe2.columns, cellLoc='center', rowLoc='center', loc='upper right',
                            cellColours=colors[0:3], colColours=xd)
+
     mpl_table2.auto_set_font_size(False)
     mpl_table2.set_fontsize(9)
     ax2.axis(False)
@@ -141,9 +139,11 @@ def output_graph(results_df):
     cumulative_total_graph = sns.kdeplot(tick_times_df, x='tick_times', cumulative=True, common_norm=False,
                                          common_grid=True, legend=True, color='crimson')
     empirical_total_graph = sns.ecdfplot(tick_times_df, x='tick_times', legend=True, color='green')
+
     data_x, data_y = cumulative_total_graph.lines[0].get_data()
     yi = .99
     xi = np.interp(yi, data_y, data_x)
+
     cumulative_total_graph.set(xticks=(np.arange(0, 1400, step=25)), xlim=(0, xi), yticks=(np.arange(0, 1.1, step=.1)),
                                ylim=(0, 1), ylabel='probability of killing tekton', xlabel='time of encounter in ticks',
                                title='cumulative probability of killing tekton')
@@ -155,11 +155,10 @@ def output_graph(results_df):
                             xlabel='time of encounter in seconds')
     aux_axis_cumulative.set_xticklabels(minutes_list_bigger_step, rotation=45)
     cumulative_total_graph.grid('visible', color='black')
-
     # total histogram graph
     n2t, bins2t, pathces2t = total_sample_aux_plot.hist(tick_times, bins=bin_number, density=False, alpha=0)
     n2, bins2, pathces2 = total_sample_main_plot.hist(tick_times, bins=bin_number, density=True, edgecolor='black',
-                                                      linewidth=.8)
+                                                      linewidth=.8, color='#ff9900')
 
     total_sample_aux_plot.set(ylabel='number of killed tektons in sample')
     mu2 = np.mean(tick_times)
@@ -179,7 +178,7 @@ def output_graph(results_df):
     total_sample_main_plot_aux_xaxis.set_xticklabels(
         minutes_list_big_step[3:(len(total_sample_main_plot_aux_xaxis_labels) + 3)])
     total_sample_main_plot.set(ylabel='probability density', xlabel='time of encounter in ticks',
-                               title='tekton density histogram of ' + '10000' + ' trials',
+                               title='tekton density histogram of ' + p.number_to_words(trials) + ' trials',
                                xticks=total_sample_main_plot_xticks, xlim=(75, (np.max(tick_times))))
     total_sample_main_plot.locator_params(nbins=22, axis='y')
     total_sample_aux_plot.locator_params(nbins=22, axis='y')
@@ -191,7 +190,7 @@ def output_graph(results_df):
 
     # under one anvil graph
     n, bins, pathces = one_anvil_main_plot.hist(tick_times_one_anvil, bins=bin_number_second, density=True,
-                                                edgecolor='black', linewidth=.8)
+                                                edgecolor='black', linewidth=.8, color='#ff9900')
     nt, binst, pathcest = one_anvil_aux_plot.hist(tick_times_one_anvil, bins=bin_number_second, density=False,
                                                   edgecolor='black', linewidth=.8, alpha=0)
 
@@ -206,7 +205,7 @@ def output_graph(results_df):
     one_anvil_main_plot_xticks = (np.arange(75, 165, step=5))
     one_anvil_main_plot.set(xticks=one_anvil_main_plot_xticks,
                             xlim=(75, 160), xlabel='time of encounter in ticks', ylabel='Probability density',
-                            title='number of tektons under one anvil in ' + '1000' + ' trials')
+                            title='number of tektons under one anvil in ' + p.number_to_words(trials) + ' trials')
     one_anvil_main_plot.locator_params(nbins=22, axis='y')
     one_anvil_aux_plot.locator_params(nbins=22, axis='y')
     one_anvil_main_plot.xaxis.set_tick_params(rotation=45)
@@ -220,6 +219,6 @@ def output_graph(results_df):
     one_anvil_main_plot.set_axisbelow(True)
 
     one_anvil_aux_plot.yaxis.grid(True, color='black')
-    plt.subplots_adjust(wspace=.25, hspace=0, right=.93, left=0.05, top=.90, bottom=.07)
+    plt.subplots_adjust(wspace=.5, hspace=.5, right=.93, left=0.05, top=.90, bottom=.07)
     one_anvil_main_plot.set_facecolor((0.0, 0.0, 0.0, 0.0))
     return fig
