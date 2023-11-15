@@ -4,35 +4,41 @@
 <!--    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}" />-->
 <!--{% endblock %}-->
 {% block head %}
-<form method="post" action="/database" class="form" >
-  <div class="form__container">
-    <div class="form__group">
-        {{ form.cm.label }}
-        {{ form.cm(class="form-control", checked=True) }}
-        {{ form.inq.label }}
-        {{ form.inq(class="form-control", checked=True) }}
-        {{ form.feros.label }}
-        {{ form.feros(class="form-control") }}
-        {{ form.tort.label }}
-        {{ form.tort(class="form-control") }}
-        {{ form.fang.label }}
-        {{ form.fang(class="form-control") }}
-        {{ form.five_tick.label }}
-        {{ form.five_tick(class="form-control") }}
-        {{ form.pre_veng.label }}
-        {{ form.pre_veng(class="form-control", checked=True) }}
-        {{ form.vuln.label }}
-        {{ form.vuln(class="form-control", checked=True) }}
-        {{ form.vuln_book.label }}
-        {{ form.vuln_book(class="form-control") }}
-
+<form method="post" action="/database" class="form-inline">
+    <div class="form__container">
+        <div class="form__group">
+            {{ form.cm.label }}{{ form.cm(class="form-control", checked=True) }}
+        </div>
+        <div class="form__group">
+            {{ form.inq.label }}{{ form.inq(class="form-control", checked=True) }}
+        </div>
+        <div class="form__group">
+            {{ form.feros.label }}{{ form.feros(class="form-control") }}
+        </div>
+        <div class="form__group">
+            {{ form.tort.label }}{{ form.tort(class="form-control") }}
+        </div>
+        <div class="form__group">
+            {{ form.fang.label }}{{ form.fang(class="form-control") }}
+        </div>
+        <div class="form__group">
+            {{ form.five_tick.label }}{{ form.five_tick(class="form-control") }}
+        </div>
+        <div class="form__group">
+            {{ form.pre_veng.label }}{{ form.pre_veng(class="form-control", checked=True) }}
+        </div>
+        <div class="form__group">
+            {{ form.vuln.label }}{{ form.vuln(class="form-control", checked=True) }}
+        </div>
+        <div class="form__group">
+            {{ form.vuln_book.label }}{{ form.vuln_book(class="form-control") }}
+        </div>
     </div>
-  </div>
-  <br>
+    <br>
     {{ form.ring.label }}
     {{ form.ring(class="form-control") }}
-  {{ form.submit(class="btn btn-primary") }}
-  <br>
+    {{ form.submit(class="btn btn-primary") }}
+    <br>
 </form>
 <style>
 .form {
