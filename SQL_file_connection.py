@@ -22,6 +22,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
+from flask_bootstrap import Bootstrap
+
 from generate_graphs import output_graph
 from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField
 from sqlalchemy.ext.declarative import declarative_base
@@ -37,7 +39,7 @@ import base64
 db = SQLAlchemy()
 app = Flask(__name__, template_folder=r'C:\Users\Dylan\PycharmProjects\home_project\myflaskproject\.venv\templates')
 # change string to the name of your database; add path if necessary
-
+second_host = r"TCETRA-PF32K86K"
 connection_url = engine.URL.create(
     r"mssql+pyodbc",
     host=r"DESKTOP-3TJHN4P\MSSQLSERVER01",
@@ -62,7 +64,7 @@ app.config['SECRET_KEY'] = 'any secret string'
 
 # initialize the app with Flask-SQLAlchemy
 db.init_app(app)
-
+Bootstrap(app)
 # app.register_blueprint(database_bp)
 
 # NOTHING BELOW THIS LINE NEEDS TO CHANGE
@@ -116,17 +118,23 @@ class QueryForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
+class HpEstimate(FlaskForm):
+    hp_estimate = IntegerField('Enter your weight',default="170")
+    submit = SubmitField('Submit')
+
+
 @app.route("/table", methods=['GET', 'POST',])
 def table():
     form_q = QueryForm()
     if request.method == 'POST':
         return redirect(url_for("database"))
-    return render_template(r"table.html", form=form_q)
+    return render_template(r"table.html", form_q=form_q)
 
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
     if request.method == 'POST':
+        form_e = HpEstimate()
         form_q = QueryForm()
         print(form_q.data)
         print(form_q.ring.data)
@@ -169,12 +177,13 @@ def database():
         avg_hp = one_anvils['hp_after_pre_anvil'].mean()
         max_hp = one_anvils['hp_after_pre_anvil'].max()
         min_hp = one_anvils['hp_after_pre_anvil'].min()
-        if not request.form.get('data'):
-            estimate = request.form.get('data')
-            total_above = (len(df[df['hp_after_pre_anvil'] > estimate].copy()) / len(df)) ** 100
-            total_below = (len(df[df['hp_after_pre_anvil'] < estimate].copy()) / len(df)) ** 100
-            total_above_subset = (len(df[(df['hp_after_pre_anvil'] > estimate) & (df['anvil_count'] == 1)].copy()) / len(df)) ** 100
-            total_below_subset = (len(df[(df['hp_after_pre_anvil'] < estimate) & (df['anvil_count'] == 1)].copy()) / len(df)) ** 100
+        form_e.populate_obj(form_e.hp_estimate)
+        # form_e.process(obj=form_e.hp_estimate)
+        if not form_e.data.get('hp_estimate'):
+            total_above = (len(df[df['hp_after_pre_anvil'] > form_e.data.get('hp_estimate')].copy()) / len(df)) ** 100
+            total_below = (len(df[df['hp_after_pre_anvil'] < form_e.data.get('hp_estimate')].copy()) / len(df)) ** 100
+            total_above_subset = (len(df[(df['hp_after_pre_anvil'] > form_e.data.get('hp_estimate')) & (df['anvil_count'] == 1)].copy()) / len(df)) ** 100
+            total_below_subset = (len(df[(df['hp_after_pre_anvil'] < form_e.data.get('hp_estimate')) & (df['anvil_count'] == 1)].copy()) / len(df)) ** 100
         else:
             total_above = 1 / len(df) ** 100
             total_below = 1 / len(df) ** 100
