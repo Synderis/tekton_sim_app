@@ -1,0 +1,76 @@
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, r2_score, mean_squared_error, mean_squared_log_error
+
+from sklearn.linear_model import LogisticRegression, LinearRegression
+
+
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+import pandas as pd
+import numpy as np
+
+tek_data = pd.read_csv(r"C:\Users\dtocci\PycharmProjects\local_data_cache\tekton_data.csv")
+# print(tek_data)
+tek_data = tek_data[['tick_times', 'anvil_count', 'hammer_count', 'hp_after_pre_anvil']]
+group_names = ['fast', 'quick', 'slow']
+bins = (1, 2, 3, 4)
+tek_data['tick_times'] = pd.cut(tek_data['tick_times'], bins=bins, labels=group_names)
+tek_data['tick_times'].unique()
+trial_speed = LabelEncoder()
+tek_data['tick_times'] = trial_speed.fit_transform(tek_data['anvil_count'])
+# print(tek_data)
+X = tek_data.drop('tick_times', axis=1)
+y = tek_data['tick_times']
+X_train, X_validation, Y_train, Y_validation = train_test_split(X, y, test_size=0.20, random_state=42)
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_validation = sc.transform(X_validation)
+# print(X_train[:10])
+
+lin = LinearRegression()
+lin.fit(X_train, Y_train)
+predict_lin = lin.predict(X_validation)
+print(r2_score(Y_validation, predict_lin))
+print(mean_squared_error(Y_validation, predict_lin))
+print(mean_squared_error(Y_validation, predict_lin, squared=False))
+print('--------------------------------------------------------')
+
+log = LogisticRegression()
+log.fit(X_train, Y_train)
+predict_log = log.predict(X_validation)
+print(r2_score(Y_validation, predict_log))
+print(mean_squared_error(Y_validation, predict_log))
+print(mean_squared_error(Y_validation, predict_log, squared=False))
+print('--------------------------------------------------------')
+
+rfc = RandomForestClassifier(n_estimators=200)
+rfc.fit(X_train, Y_train)
+predict_rfc = rfc.predict(X_validation)
+print(classification_report(Y_validation, predict_rfc))
+print(confusion_matrix(Y_validation, predict_rfc))
+print(accuracy_score(Y_validation, predict_rfc))
+print('--------------------------------------------------------')
+
+clf = SVC()
+clf.fit(X_train, Y_train)
+predict_clf = clf.predict(X_validation)
+print(classification_report(Y_validation, predict_clf))
+print(confusion_matrix(Y_validation, predict_clf))
+print(accuracy_score(Y_validation, predict_clf))
+print('--------------------------------------------------------')
+
+mlpc = MLPClassifier(hidden_layer_sizes=(3, 3, 3), max_iter=500)
+mlpc.fit(X_train, Y_train)
+predict_mlpc = mlpc.predict(X_validation)
+print(classification_report(Y_validation, predict_mlpc))
+print(confusion_matrix(Y_validation, predict_mlpc))
+print(accuracy_score(Y_validation, predict_mlpc))
+print('--------------------------------------------------------')
