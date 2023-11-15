@@ -7,37 +7,37 @@
 <form method="post" action="/database" class="form-inline">
     <div class="form__container">
         <div class="form__group">
-            {{ form.cm.label }}{{ form.cm(class="form-control", checked=True) }}
+            {{ form_q.cm.label }}{{ form_q.cm(class="form-control", checked=True) }}
         </div>
         <div class="form__group">
-            {{ form.inq.label }}{{ form.inq(class="form-control", checked=True) }}
+            {{ form_q.inq.label }}{{ form_q.inq(class="form-control", checked=True) }}
         </div>
         <div class="form__group">
-            {{ form.feros.label }}{{ form.feros(class="form-control") }}
+            {{ form_q.feros.label }}{{ form_q.feros(class="form-control") }}
         </div>
         <div class="form__group">
-            {{ form.tort.label }}{{ form.tort(class="form-control") }}
+            {{ form_q.tort.label }}{{ form_q.tort(class="form-control") }}
         </div>
         <div class="form__group">
-            {{ form.fang.label }}{{ form.fang(class="form-control") }}
+            {{ form_q.fang.label }}{{ form_q.fang(class="form-control") }}
         </div>
         <div class="form__group">
-            {{ form.five_tick.label }}{{ form.five_tick(class="form-control") }}
+            {{ form_q.five_tick.label }}{{ form_q.five_tick(class="form-control") }}
         </div>
         <div class="form__group">
-            {{ form.pre_veng.label }}{{ form.pre_veng(class="form-control", checked=True) }}
+            {{ form_q.pre_veng.label }}{{ form_q.pre_veng(class="form-control", checked=True) }}
         </div>
         <div class="form__group">
-            {{ form.vuln.label }}{{ form.vuln(class="form-control", checked=True) }}
+            {{ form_q.vuln.label }}{{ form_q.vuln(class="form-control", checked=True) }}
         </div>
         <div class="form__group">
-            {{ form.vuln_book.label }}{{ form.vuln_book(class="form-control") }}
+            {{ form_q.vuln_book.label }}{{ form_q.vuln_book(class="form-control") }}
         </div>
     </div>
     <br>
-    {{ form.ring.label }}
-    {{ form.ring(class="form-control") }}
-    {{ form.submit(class="btn btn-primary") }}
+    {{ form_q.ring.label }}
+    {{ form_q.ring(class="form-control") }}
+    {{ form_q.submit(class="btn btn-primary") }}
     <br>
 </form>
 <style>
