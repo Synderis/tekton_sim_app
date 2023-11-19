@@ -4,21 +4,17 @@
 {% block head %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <div class="container">
-    <div>
-        <img src="{{ image }}" class="high-quality" style="width:1500px;height:800px; float:left; visibility:hidden;"/>
+        <img src="{{ image }}" class="high-quality" style="width:80%;"/>
+        <form onSubmit="return handleSubmit(event);">
+            <input type="number" id="hpInput" name="hpInput" value="170" required/>
+            <input type="submit" value="Submit" style="margin-top:5px;"/>
+            <div>Table comparing amounts of trials comparing hp value in percents</div>
+            <div id="Results"></div>
+        </form>
+
     </div>
 
-    <div class="table-div">
-        <table class="misc-table" id="misctbl" style="width:100%;">
-            {% for table in misc_table %}
-            {{ table|safe }}
-            {% endfor %}
-        </table>
-        <div class="hp_container">
-            {{ form_hp.hp_estimate }}
-        <button type="button" onclick="fullsend()"> Submit Hp </button>
-        </div>
-    </div>
+
     <div class="data-table">
         <table class="result-table" style="width:100%;">
             <caption class="important">Output Snapshot</caption>
@@ -27,65 +23,62 @@
             {% endfor %}
         </table>
     </div>
-</div>
-<script type=text/javascript>
 
-function fullsend() {
-    $.ajax({
-        type: 'POST',
-        url: '/database',
-        data = JSON.parseJSON(data)
-        success: function(data) {
-        console.log('success');
-        $('#form_data').load( location.href );
-        }
-    })
-}
+<script>
+    function handleSubmit(event) {
+    event.preventDefault()
+      let table = document.getElementById("Results")
+      let number = document.getElementById("hpInput").value;
+      const body = {hpInput: number}
+      var options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      };
+      fetch("/database", options)
+        .then((response) => response.json())
+        .then((data) => {
+         console.log("data:", data);
+        let new_tbl = `<table><thead><tr><td>Above</td><td>Below</td><td>Above_1_Anvil</td><td>Below_1_Anvil</td><td>HP_Value_Selected</td></tr></thead><tbody><tr><td>${data.Above}</td><td>${data.Below}</td><td>${data.Above_1_Anvil}</td><td>${data.Below_1_Anvil}</td><td>${data.HP_Value_Selected}</td></tr></tbody></table>`
+           table.innerHTML = new_tbl;
+
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      return false;
+    }
+
 
 </script>
 <style type="text/css">
-.form {
-  position:absolute;
-  top:229px;
-  left: 1515px;
 
-  /* An explicit background is required here, as it's actually transparent by default, and we
-       don't want to see the shadow element behind */
-  background: var(--background-color);
-}
-.hp_widget {
-  position:absolute;
-  top:200px;
-  left: 1515px;
+    .form {
+    margin: inline
 
-  /* An explicit background is required here, as it's actually transparent by default, and we
-       don't want to see the shadow element behind */
-  background: var(--background-color);
-}
-    .important { color:  #ff0000; }
-     caption {
-  display: inline;
-  text-align: center;
-  font-size: 30px;
-}
-.container img {
-position:absolute;
-left:0;
-top:0;
-}
-.container .data-table {
-position:absolute;
-top:800px;
-}
-.container .table-div {
-position:absolute;
-left: 1515px;
-}
+      /* An explicit background is required here, as it's actually transparent by default, and we
+           don't want to see the shadow element behind */
+      background: var(--background-color);
+    }
+        .important { color:  #ff0000; }
+         caption {
+      display: inline;
+      text-align: center;
+      font-size: 30px;
+    }
+    .container {
+    width: 90vw;
+
+    display: flex;
+    flex-direction: row;
+    }
+    .container .data-table {
+    }
+    .container :nth-child(n) {
+    padding:5px
+    }
 </style>
 
 {% endblock %}
-{% block content %}
-<h1>Index</h1>
-<p class="important">
-    Welcome on my awesome homepage.
-    {% endblock %}

@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 from flask_wtf import FlaskForm
+from flask_restful import Resource, Api
 from scipy.stats import norm
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
@@ -68,20 +69,22 @@ app.config['SECRET_KEY'] = 'any secret string'
 # initialize the app with Flask-SQLAlchemy
 db.init_app(app)
 Bootstrap4(app)
+api = Api(app)
 # app.register_blueprint(database_bp)
 
 # NOTHING BELOW THIS LINE NEEDS TO CHANGE
 # this route will test the database connection - and nothing more
 @app.route('/')
 def testdb():
-    try:
-        db.session.query(text('1')).from_statement(text('SELECT 1')).all()
-        return '<h1>It works.</h1>'
-    except Exception as e:
-        # e holds description of the error
-        error_text = "<p>The error:<br>" + str(e) + "</p>"
-        hed = '<h1>Something is broken.</h1>'
-        return hed + error_text
+    return redirect(url_for("table"))
+    # try:
+    #     db.session.query(text('1')).from_statement(text('SELECT 1')).all()
+    #     return '<h1>It works.</h1>'
+    # except Exception as e:
+    #     # e holds description of the error
+    #     error_text = "<p>The error:<br>" + str(e) + "</p>"
+    #     hed = '<h1>Something is broken.</h1>'
+    #     return hed + error_text
 
 
 headings = ('tick_times', 'anvil_count', 'hammer_count', 'cm', 'inq', 'five_tick_only', 'fang', 'b_ring', 'brim', 'feros', 'tort', 'lightbearer', 'preveng', 'veng_camp', 'vuln', 'book_of_water')
@@ -133,9 +136,9 @@ class MyHpInput(widgets.Input):
         return super(MyHpInput, self).__call__(field, **kwargs)
 
 
-class HpEstimate(FlaskForm):
-    hp_estimate = IntegerField('Enter test hp val', default="170")
-    submit = SubmitField('Submit')
+# class HpEstimate(FlaskForm):
+#     hp_estimate = IntegerField('Enter test hp val', default="170")
+#     submit = SubmitField('Submit')
 
 
 @app.route("/table", methods=['GET', 'POST',])
@@ -146,16 +149,24 @@ def table():
     return render_template(r"table.html", form_q=form_q)
 
 
+form_dict ={}
 
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
-    form_hp = HpEstimate()
+    # form_hp = HpEstimate()
     form_q = QueryForm()
-    hp_widget = MyHpInput()
+    global form_dict
 
-    if (request.method == 'POST') & form_q.submit.data:
+    try:
+        print(request.json)
+        flag = True
+    except:
+        flag = False
+        pass
+    if not flag:
         print(form_q.data)
+        form_dict.update(form_q.data)
         print(form_q.ring.data)
         ring_val = str(form_q.ring.data)
         cm_val = bool(form_q.cm.data)
@@ -191,42 +202,26 @@ def database():
         png_image_b64_string = "data:image/png;base64,"
         png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
         plt.close()
-        print(df)
-        one_anvils = df[df['anvil_count'] == 1].copy()
-        avg_hp = one_anvils['hp_after_pre_anvil'].mean()
-        max_hp = one_anvils['hp_after_pre_anvil'].max()
-        min_hp = one_anvils['hp_after_pre_anvil'].min()
-        form_hp.populate_obj(form_hp.hp_estimate)
-        form_hp.process(obj=form_hp.hp_estimate)
-
-
-        misc_table = {'Average pre anvil hp': avg_hp, 'Max pre anvil hp': max_hp, 'Min pre anvil hp': min_hp,
-                      'N': len(one_anvils), 'input': form_hp.hp_estimate}
-
-        misc_table = pd.DataFrame([misc_table])
-        return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n')],
-                               misc_table=[misc_table.to_html()], image=png_image_b64_string, form_hp=form_hp, widgets=hp_widget)
+        return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n')], image=png_image_b64_string)
     else:
-        if (request.method == 'POST') & form_hp.submit.data:
-            print('t')
-            return print(jsonify(form_hp.data))
-    #         form_dict.pop('submit')
-    #         form_dict.pop('csrf_token')
-    #         query_n = session.query(TektonResults).filter_by(**form_dict)
-    #         table_df = pd.read_sql(query_n.statement, con=db_engine)
-    #         # now we can run the query
-    #         print(form_dict)
-    #         total_above = (len(table_df[table_df['hp_after_pre_anvil'] > form.data.get('hp_estimate')].copy()) / len(table_df)) ** 100
-    #         total_below = (len(table_df[table_df['hp_after_pre_anvil'] < form.data.get('hp_estimate')].copy()) / len(table_df)) ** 100
-    #         total_above_subset = (len(
-    #             table_df[(table_df['hp_after_pre_anvil'] > form.data.get('hp_estimate')) & (table_df['anvil_count'] == 1)].copy()) / len(
-    #             table_df)) ** 100
-    #         total_below_subset = (len(
-    #             table_df[(table_df['hp_after_pre_anvil'] < form.data.get('hp_estimate')) & (table_df['anvil_count'] == 1)].copy()) / len(
-    #             table_df)) ** 100
-    #         new_tbl = {'Average pre anvil hp': total_above, 'Max pre anvil hp': total_below, 'Min pre anvil hp': total_above_subset,
-    #                       'N': total_below_subset, 'input': form.hp_estimate}
-    #         # new_tbl = pd.DataFrame([new_tbl])
+        new_dict = {k: form_dict[k] for k in form_dict.keys() - {'submit', 'csrf_token'}}
+        query_n = session.query(TektonResults).filter_by(**new_dict)
+        table_df = pd.read_sql(query_n.statement, con=db_engine)
+        # now we can run the query
+        print(new_dict)
+        hp_val = int(request.json.get("hpInput"))
+        subset_table = table_df[(table_df['anvil_count'] == 1)].copy()
+        total_above = round((len(table_df[table_df['hp_after_pre_anvil'] > hp_val].copy()) / len(table_df)) * 100, 2)
+        total_below = round((len(table_df[table_df['hp_after_pre_anvil'] < hp_val].copy()) / len(table_df)) * 100, 2)
+        total_above_subset = round((len(table_df[(table_df['hp_after_pre_anvil'] > hp_val) & (table_df['anvil_count'] == 1)].copy()) / len(
+            subset_table)) * 100, 2)
+        total_below_subset = round((len(
+            table_df[(table_df['hp_after_pre_anvil'] < hp_val) & (table_df['anvil_count'] == 1)].copy()) / len(
+            subset_table)) * 100, 2)
+        new_tbl = {'Above': total_above, 'Below': total_below, 'Above_1_Anvil': total_above_subset,
+                   'Below_1_Anvil': total_below_subset, 'HP_Value_Selected': hp_val}
+        return jsonify(new_tbl)
+        # new_tbl = pd.DataFrame([new_tbl])
     #
     #         x = str('working')
 
