@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 {% block title %}Index{% endblock %}
-{% from 'bootstrap/form.html' import render_form %}
+{% from "bootstrap4/form.html" import render_form %}
 {% block head %}
+
 <div class="container">
     <div>
         <img src="{{ image }}" class="high-quality" style="width:1500px;height:800px; float:left;"/>
     </div>
-    {{ render_form(form_e) }}
+    {{ super() }}
+    {{ render_form(form) }}
     <div class="table-div">
-        <table class="misc-table" style="width:100%;">
+        <table class="misc-table" id="misctbl" style="width:100%;">
             {% for table in misc_table %}
             {{ table|safe }}
             {% endfor %}
         </table>
-        <form method="post" action="" class="form-inline">
-            {{ form_e.hp_estimate }}
-            {{ form_e.submit(class="btn btn-primary") }}
-        </form>
-
     </div>
+    <form method="post" id="hp_estimate" action="">
+            {{ form.hp_estimate(class="form-control") }}
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
     <div class="data-table">
         <table class="result-table" style="width:100%;">
             <caption class="important">Output Snapshot</caption>
@@ -30,13 +31,22 @@
 </div>
 
 <style type="text/css">
+.form {
+  position:absolute;
+  top:200px;
+  left: 1515px;
+
+  /* An explicit background is required here, as it's actually transparent by default, and we
+       don't want to see the shadow element behind */
+  background: var(--background-color);
+}
     .important { color:  #ff0000; }
      caption {
   display: inline;
   text-align: center;
   font-size: 30px;
 }
-      .container img {
+.container img {
 position:absolute;
 left:0;
 top:0;
