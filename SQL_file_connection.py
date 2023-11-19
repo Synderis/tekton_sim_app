@@ -59,7 +59,6 @@ SessionObject = sessionmaker(bind=db_engine)
 session = SessionObject()
 
 
-
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_url
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -69,11 +68,11 @@ app.config['SECRET_KEY'] = 'any secret string'
 # initialize the app with Flask-SQLAlchemy
 db.init_app(app)
 Bootstrap4(app)
-api = Api(app)
-# app.register_blueprint(database_bp)
 
 # NOTHING BELOW THIS LINE NEEDS TO CHANGE
 # this route will test the database connection - and nothing more
+
+
 @app.route('/')
 def testdb():
     return redirect(url_for("table"))
@@ -85,9 +84,6 @@ def testdb():
     #     error_text = "<p>The error:<br>" + str(e) + "</p>"
     #     hed = '<h1>Something is broken.</h1>'
     #     return hed + error_text
-
-
-headings = ('tick_times', 'anvil_count', 'hammer_count', 'cm', 'inq', 'five_tick_only', 'fang', 'b_ring', 'brim', 'feros', 'tort', 'lightbearer', 'preveng', 'veng_camp', 'vuln', 'book_of_water')
 
 
 class TektonResults(db.Model):
@@ -124,23 +120,6 @@ class QueryForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-class MyHpInput(widgets.Input):
-    def __init__(self, error_class=u'has_errors'):
-        super(MyHpInput, self).__init__()
-        self.error_class = error_class
-
-    def __call__(self, field, **kwargs):
-        if field.errors:
-            c = kwargs.pop('class', '') or kwargs.pop('class_', '')
-            kwargs['class'] = u'%s %s' % (self.error_class, c)
-        return super(MyHpInput, self).__call__(field, **kwargs)
-
-
-# class HpEstimate(FlaskForm):
-#     hp_estimate = IntegerField('Enter test hp val', default="170")
-#     submit = SubmitField('Submit')
-
-
 @app.route("/table", methods=['GET', 'POST',])
 def table():
     form_q = QueryForm()
@@ -164,6 +143,7 @@ def database():
     except:
         flag = False
         pass
+
     if not flag:
         print(form_q.data)
         form_dict.update(form_q.data)
@@ -203,13 +183,10 @@ def database():
         png_image_b64_string = "data:image/png;base64,"
         png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
         plt.close()
-        return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n')], image=png_image_b64_string)
+        return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n', index=False)],
+                               image=png_image_b64_string)
     else:
         print('here')
-
-        # form_dict.pop('submit')
-        # form_dict.pop('csrf_token')
-        # query_n = session.query(TektonResults).filter_by(**form_dict)
         new_dict = form_dict.copy()
         new_dict.pop('submit')
         new_dict.pop('csrf_token')
@@ -227,10 +204,10 @@ def database():
         total_below_subset = round((len(
             table_df[(table_df['hp_after_pre_anvil'] < hp_val) & (table_df['anvil_count'] == 1)].copy()) / len(
             subset_table)) * 100, 2)
-        new_tbl = {'Above': total_above, 'Below': total_below, 'One_Anvils_Above': total_above_subset,
-                   'One_Anvils_Below': total_below_subset, 'HP_Value_Selected': hp_val}
-        return jsonify(new_tbl)
-        # new_tbl = pd.DataFrame([new_tbl])
+        new_tbl = {'Data Set': ['Above', 'Below', 'One Anvils Above', 'One Anvils Below', 'HP Selected'], 'Data Value': [f'{total_above}%', f'{total_below}%', f'{total_above_subset}%', f'{total_below_subset}%', hp_val]}
+        new_tbl = pd.DataFrame(data=new_tbl)
+        return new_tbl.to_html(index=False)
+        #
     #
     #         x = str('working')
 
@@ -264,16 +241,6 @@ def database():
         # print(accuracy_score(Y_validation, predictions))
         # print(confusion_matrix(Y_validation, predictions))
         # print(classification_report(Y_validation, predictions))
-
-
-
-@app.route('/process', methods=['POST'])
-def process():
-    data = request.form.get('data')
-    # process the data using Python code
-
-    result = int(data) * 2
-    return str(result)
 
 
 if __name__ == '__main__':
