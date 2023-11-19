@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block title %}Index{% endblock %}
 <!--{%- block head_content %}-->
 <!--    <link rel="stylesheet" href="{{ url_for('static', filename='forms.css') }}" />-->
@@ -22,16 +23,19 @@
             {{ form_q.fang.label }}{{ form_q.fang(class="form-control") }}
         </div>
         <div class="form__group">
-            {{ form_q.five_tick.label }}{{ form_q.five_tick(class="form-control") }}
+            {{ form_q.five_tick_only.label }}{{ form_q.five_tick_only(class="form-control") }}
         </div>
         <div class="form__group">
-            {{ form_q.pre_veng.label }}{{ form_q.pre_veng(class="form-control", checked=True) }}
+            {{ form_q.preveng.label }}{{ form_q.preveng(class="form-control", checked=True) }}
+        </div>
+        <div class="form__group">
+            {{ form_q.veng_camp.label }}{{ form_q.veng_camp(class="form-control") }}
         </div>
         <div class="form__group">
             {{ form_q.vuln.label }}{{ form_q.vuln(class="form-control", checked=True) }}
         </div>
         <div class="form__group">
-            {{ form_q.vuln_book.label }}{{ form_q.vuln_book(class="form-control") }}
+            {{ form_q.book_of_water.label }}{{ form_q.book_of_water(class="form-control") }}
         </div>
     </div>
     <br>
