@@ -41,7 +41,7 @@
         .then((response) => response.json())
         .then((data) => {
          console.log("data:", data);
-        let new_tbl = `<table><thead><tr><td>Above</td><td>Below</td><td>Above_1_Anvil</td><td>Below_1_Anvil</td><td>HP_Value_Selected</td></tr></thead><tbody><tr><td>${data.Above}</td><td>${data.Below}</td><td>${data.Above_1_Anvil}</td><td>${data.Below_1_Anvil}</td><td>${data.HP_Value_Selected}</td></tr></tbody></table>`
+        let new_tbl = `<table><thead><tr><td>Above</td><td>Below</td><td>One_Anvils_Above</td><td>One_Anvils_Below</td><td>HP_Value_Selected</td></tr></thead><tbody><tr><td>${data.Above}</td><td>${data.Below}</td><td>${data.One_Anvils_Above}</td><td>${data.One_Anvils_Below}</td><td>${data.HP_Value_Selected}</td></tr></tbody></table>`
            table.innerHTML = new_tbl;
 
         })

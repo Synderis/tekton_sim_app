@@ -167,6 +167,7 @@ def database():
     if not flag:
         print(form_q.data)
         form_dict.update(form_q.data)
+        print(form_dict)
         print(form_q.ring.data)
         ring_val = str(form_q.ring.data)
         cm_val = bool(form_q.cm.data)
@@ -204,10 +205,18 @@ def database():
         plt.close()
         return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n')], image=png_image_b64_string)
     else:
-        new_dict = {k: form_dict[k] for k in form_dict.keys() - {'submit', 'csrf_token'}}
+        print('here')
+
+        # form_dict.pop('submit')
+        # form_dict.pop('csrf_token')
+        # query_n = session.query(TektonResults).filter_by(**form_dict)
+        new_dict = form_dict.copy()
+        new_dict.pop('submit')
+        new_dict.pop('csrf_token')
         query_n = session.query(TektonResults).filter_by(**new_dict)
         table_df = pd.read_sql(query_n.statement, con=db_engine)
         # now we can run the query
+        print(form_dict)
         print(new_dict)
         hp_val = int(request.json.get("hpInput"))
         subset_table = table_df[(table_df['anvil_count'] == 1)].copy()
@@ -218,8 +227,8 @@ def database():
         total_below_subset = round((len(
             table_df[(table_df['hp_after_pre_anvil'] < hp_val) & (table_df['anvil_count'] == 1)].copy()) / len(
             subset_table)) * 100, 2)
-        new_tbl = {'Above': total_above, 'Below': total_below, 'Above_1_Anvil': total_above_subset,
-                   'Below_1_Anvil': total_below_subset, 'HP_Value_Selected': hp_val}
+        new_tbl = {'Above': total_above, 'Below': total_below, 'One_Anvils_Above': total_above_subset,
+                   'One_Anvils_Below': total_below_subset, 'HP_Value_Selected': hp_val}
         return jsonify(new_tbl)
         # new_tbl = pd.DataFrame([new_tbl])
     #
