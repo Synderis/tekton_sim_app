@@ -2,24 +2,23 @@
 {% block title %}Index{% endblock %}
 {% from "bootstrap4/form.html" import render_form %}
 {% block head %}
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <div class="container">
     <div>
-        <img src="{{ image }}" class="high-quality" style="width:1500px;height:800px; float:left;"/>
+        <img src="{{ image }}" class="high-quality" style="width:1500px;height:800px; float:left; visibility:hidden;"/>
     </div>
-    {{ super() }}
-    {{ render_form(form) }}
+
     <div class="table-div">
         <table class="misc-table" id="misctbl" style="width:100%;">
             {% for table in misc_table %}
             {{ table|safe }}
             {% endfor %}
         </table>
+        <div class="hp_container">
+            {{ form_hp.hp_estimate }}
+        <button type="button" onclick="fullsend()"> Submit Hp </button>
+        </div>
     </div>
-    <form method="post" id="hp_estimate" action="">
-            {{ form.hp_estimate(class="form-control") }}
-            {{ form.submit(class="btn btn-primary") }}
-        </form>
     <div class="data-table">
         <table class="result-table" style="width:100%;">
             <caption class="important">Output Snapshot</caption>
@@ -29,9 +28,32 @@
         </table>
     </div>
 </div>
+<script type=text/javascript>
 
+function fullsend() {
+    $.ajax({
+        type: 'POST',
+        url: '/database',
+        data = JSON.parseJSON(data)
+        success: function(data) {
+        console.log('success');
+        $('#form_data').load( location.href );
+        }
+    })
+}
+
+</script>
 <style type="text/css">
 .form {
+  position:absolute;
+  top:229px;
+  left: 1515px;
+
+  /* An explicit background is required here, as it's actually transparent by default, and we
+       don't want to see the shadow element behind */
+  background: var(--background-color);
+}
+.hp_widget {
   position:absolute;
   top:200px;
   left: 1515px;

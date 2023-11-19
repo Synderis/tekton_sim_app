@@ -41,7 +41,7 @@ import base64
 db = SQLAlchemy()
 app = Flask(__name__, template_folder=r'C:\Users\Dylan\PycharmProjects\home_project\myflaskproject\.venv\templates')
 # change string to the name of your database; add path if necessary
-second_host = r"TCETRA-PF32K86K"
+
 connection_url = engine.URL.create(
     r"mssql+pyodbc",
     host=r"DESKTOP-3TJHN4P\MSSQLSERVER01",
@@ -121,7 +121,7 @@ class QueryForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-class MyHpInput(Input):
+class MyHpInput(widgets.Input):
     def __init__(self, error_class=u'has_errors'):
         super(MyHpInput, self).__init__()
         self.error_class = error_class
@@ -150,7 +150,7 @@ def table():
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
-    form = HpEstimate()
+    form_hp = HpEstimate()
     form_q = QueryForm()
     hp_widget = MyHpInput()
 
@@ -196,18 +196,20 @@ def database():
         avg_hp = one_anvils['hp_after_pre_anvil'].mean()
         max_hp = one_anvils['hp_after_pre_anvil'].max()
         min_hp = one_anvils['hp_after_pre_anvil'].min()
-        form.populate_obj(form.hp_estimate)
-        form.process(obj=form.hp_estimate)
+        form_hp.populate_obj(form_hp.hp_estimate)
+        form_hp.process(obj=form_hp.hp_estimate)
+
+
         misc_table = {'Average pre anvil hp': avg_hp, 'Max pre anvil hp': max_hp, 'Min pre anvil hp': min_hp,
-                      'N': len(one_anvils), 'input': form.hp_estimate}
+                      'N': len(one_anvils), 'input': form_hp.hp_estimate}
 
         misc_table = pd.DataFrame([misc_table])
         return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n')],
-                               misc_table=[misc_table.to_html()], image=png_image_b64_string, form=form, widgets=hp_widget)
+                               misc_table=[misc_table.to_html()], image=png_image_b64_string, form_hp=form_hp, widgets=hp_widget)
     else:
-        if (request.method == 'POST') & form.submit.data:
-            Fire = ["hut", "but", "nut"]
-            return jsonify(Fire)
+        if (request.method == 'POST') & form_hp.submit.data:
+            print('t')
+            return print(jsonify(form_hp.data))
     #         form_dict.pop('submit')
     #         form_dict.pop('csrf_token')
     #         query_n = session.query(TektonResults).filter_by(**form_dict)
