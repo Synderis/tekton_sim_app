@@ -1,17 +1,26 @@
 <!doctype html>
-<html>
-  <head>
-    {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>{% block title %}{% endblock %} - My Webpage</title>
-    {% endblock %}
-  </head>
-  <body>
-<!--    <div id="content">{% block content %}{% endblock %}</div>-->
-<!--    <div id="footer">-->
-<!--      {% block footer %}-->
-<!--      &copy; Copyright 2010 by <a href="http://domain.invalid/">you</a>.-->
-<!--      {% endblock %}-->
-<!--    </div>-->
-  </body>
+<html lang="en">
+    <head>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }}
+        {% endblock %}
+
+        <title>Your page title</title>
+        {% endblock %}
+    </head>
+    <body>
+        <!-- Your page content -->
+        {% block content %}{% endblock %}
+
+        {% block scripts %}
+            <!-- Optional JavaScript -->
+            {{ bootstrap.load_js() }}
+        {% endblock %}
+    </body>
 </html>

@@ -5,11 +5,12 @@ import matplotlib
 from matplotlib import pyplot as plt
 from sqlalchemy.sql import text
 from sqlalchemy import URL
-from flask import render_template, Flask, request, redirect, url_for
+from flask import render_template, Flask, request, redirect, url_for, Response, jsonify
 from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 from flask_wtf import FlaskForm
+from scipy.stats import norm
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import StratifiedKFold
@@ -22,10 +23,11 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap4
 
 from generate_graphs import output_graph
-from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField
+from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField, widgets
+from wtforms.widgets import Input, SubmitInput
 from sqlalchemy.ext.declarative import declarative_base
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from urllib import parse
@@ -56,6 +58,7 @@ SessionObject = sessionmaker(bind=db_engine)
 session = SessionObject()
 
 
+
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_url
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -64,7 +67,7 @@ app.config['SECRET_KEY'] = 'any secret string'
 
 # initialize the app with Flask-SQLAlchemy
 db.init_app(app)
-Bootstrap(app)
+Bootstrap4(app)
 # app.register_blueprint(database_bp)
 
 # NOTHING BELOW THIS LINE NEEDS TO CHANGE
@@ -96,11 +99,11 @@ class TektonResults(db.Model):
     feros = db.Column('feros', db.Boolean)
     tort = db.Column('tort', db.Boolean)
     fang = db.Column('fang', db.Boolean)
-    five_tick = db.Column('five_tick_only', db.Boolean)
-    pre_veng = db.Column('preveng', db.Boolean)
+    five_tick_only = db.Column('five_tick_only', db.Boolean)
+    preveng = db.Column('preveng', db.Boolean)
     veng_camp = db.Column('veng_camp', db.Boolean)
     vuln = db.Column('vuln', db.Boolean)
-    vuln_book = db.Column('book_of_water', db.Boolean)
+    book_of_water = db.Column('book_of_water', db.Boolean)
 
 
 class QueryForm(FlaskForm):
@@ -110,16 +113,28 @@ class QueryForm(FlaskForm):
     feros = BooleanField('Feros', default=False)
     tort = BooleanField('Tort', default=False)
     fang = BooleanField('Fang', default=False)
-    five_tick = BooleanField('Five Tick Only', default=False)
-    pre_veng = BooleanField('Pre Veng', default=False)
+    five_tick_only = BooleanField('Five Tick Only', default=False)
+    preveng = BooleanField('Pre Veng', default=False)
     veng_camp = BooleanField('Veng Camp', default=False)
     vuln = BooleanField('Vuln', default=False)
-    vuln_book = BooleanField('Book of Water', default=False)
+    book_of_water = BooleanField('Book of Water', default=False)
     submit = SubmitField("Submit")
 
 
+class MyHpInput(Input):
+    def __init__(self, error_class=u'has_errors'):
+        super(MyHpInput, self).__init__()
+        self.error_class = error_class
+
+    def __call__(self, field, **kwargs):
+        if field.errors:
+            c = kwargs.pop('class', '') or kwargs.pop('class_', '')
+            kwargs['class'] = u'%s %s' % (self.error_class, c)
+        return super(MyHpInput, self).__call__(field, **kwargs)
+
+
 class HpEstimate(FlaskForm):
-    hp_estimate = IntegerField('Enter your weight',default="170")
+    hp_estimate = IntegerField('Enter test hp val', default="170")
     submit = SubmitField('Submit')
 
 
@@ -131,11 +146,15 @@ def table():
     return render_template(r"table.html", form_q=form_q)
 
 
+
+
 @app.route('/database', methods=['GET', 'POST',])
 def database():
-    if request.method == 'POST':
-        form_e = HpEstimate()
-        form_q = QueryForm()
+    form = HpEstimate()
+    form_q = QueryForm()
+    hp_widget = MyHpInput()
+
+    if (request.method == 'POST') & form_q.submit.data:
         print(form_q.data)
         print(form_q.ring.data)
         ring_val = str(form_q.ring.data)
@@ -144,19 +163,19 @@ def database():
         feros_val = bool(form_q.feros.data)
         tort_val = bool(form_q.tort.data)
         fang_val = bool(form_q.fang.data)
-        five_tick_val = bool(form_q.five_tick.data)
-        pre_veng_val = bool(form_q.pre_veng.data)
+        five_tick_val = bool(form_q.five_tick_only.data)
+        pre_veng_val = bool(form_q.preveng.data)
         veng_camp_val = bool(form_q.veng_camp.data)
         vuln_val = bool(form_q.vuln.data)
-        vuln_book_val = bool(form_q.vuln_book.data)
+        vuln_book_val = bool(form_q.book_of_water.data)
         data_n = session.query(TektonResults).where(TektonResults.ring == ring_val, TektonResults.cm == cm_val,
                                                     TektonResults.inq == inq_val, TektonResults.feros == feros_val,
                                                     TektonResults.tort == tort_val, TektonResults.fang == fang_val,
-                                                    TektonResults.five_tick == five_tick_val,
-                                                    TektonResults.pre_veng == pre_veng_val,
+                                                    TektonResults.five_tick_only == five_tick_val,
+                                                    TektonResults.preveng == pre_veng_val,
                                                     TektonResults.veng_camp == veng_camp_val,
                                                     TektonResults.vuln == vuln_val,
-                                                    TektonResults.vuln_book == vuln_book_val)
+                                                    TektonResults.book_of_water == vuln_book_val)
         print(data_n.statement)
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
@@ -177,23 +196,38 @@ def database():
         avg_hp = one_anvils['hp_after_pre_anvil'].mean()
         max_hp = one_anvils['hp_after_pre_anvil'].max()
         min_hp = one_anvils['hp_after_pre_anvil'].min()
-        form_e.populate_obj(form_e.hp_estimate)
-        # form_e.process(obj=form_e.hp_estimate)
-        if not form_e.data.get('hp_estimate'):
-            total_above = (len(df[df['hp_after_pre_anvil'] > form_e.data.get('hp_estimate')].copy()) / len(df)) ** 100
-            total_below = (len(df[df['hp_after_pre_anvil'] < form_e.data.get('hp_estimate')].copy()) / len(df)) ** 100
-            total_above_subset = (len(df[(df['hp_after_pre_anvil'] > form_e.data.get('hp_estimate')) & (df['anvil_count'] == 1)].copy()) / len(df)) ** 100
-            total_below_subset = (len(df[(df['hp_after_pre_anvil'] < form_e.data.get('hp_estimate')) & (df['anvil_count'] == 1)].copy()) / len(df)) ** 100
-        else:
-            total_above = 1 / len(df) ** 100
-            total_below = 1 / len(df) ** 100
-            total_above_subset = 1 / len(df) ** 100
-            total_below_subset = 1 / len(df) ** 100
+        form.populate_obj(form.hp_estimate)
+        form.process(obj=form.hp_estimate)
         misc_table = {'Average pre anvil hp': avg_hp, 'Max pre anvil hp': max_hp, 'Min pre anvil hp': min_hp,
-                      '% above input': f'{total_above}%', '% below input': f'{total_below}%',
-                      '% 1 anvils above input': f'{total_above_subset}%',
-                      '% 1 anvils below input': f'{total_below_subset}%'}
+                      'N': len(one_anvils), 'input': form.hp_estimate}
+
         misc_table = pd.DataFrame([misc_table])
+        return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n')],
+                               misc_table=[misc_table.to_html()], image=png_image_b64_string, form=form, widgets=hp_widget)
+    else:
+        if (request.method == 'POST') & form.submit.data:
+            Fire = ["hut", "but", "nut"]
+            return jsonify(Fire)
+    #         form_dict.pop('submit')
+    #         form_dict.pop('csrf_token')
+    #         query_n = session.query(TektonResults).filter_by(**form_dict)
+    #         table_df = pd.read_sql(query_n.statement, con=db_engine)
+    #         # now we can run the query
+    #         print(form_dict)
+    #         total_above = (len(table_df[table_df['hp_after_pre_anvil'] > form.data.get('hp_estimate')].copy()) / len(table_df)) ** 100
+    #         total_below = (len(table_df[table_df['hp_after_pre_anvil'] < form.data.get('hp_estimate')].copy()) / len(table_df)) ** 100
+    #         total_above_subset = (len(
+    #             table_df[(table_df['hp_after_pre_anvil'] > form.data.get('hp_estimate')) & (table_df['anvil_count'] == 1)].copy()) / len(
+    #             table_df)) ** 100
+    #         total_below_subset = (len(
+    #             table_df[(table_df['hp_after_pre_anvil'] < form.data.get('hp_estimate')) & (table_df['anvil_count'] == 1)].copy()) / len(
+    #             table_df)) ** 100
+    #         new_tbl = {'Average pre anvil hp': total_above, 'Max pre anvil hp': total_below, 'Min pre anvil hp': total_above_subset,
+    #                       'N': total_below_subset, 'input': form.hp_estimate}
+    #         # new_tbl = pd.DataFrame([new_tbl])
+    #
+    #         x = str('working')
+
         # print(df.describe())
         # df = df[['tick_times', 'anvil_count', 'hammer_count', 'hp_after_pre_anvil']]
         # array = df.values
@@ -224,7 +258,7 @@ def database():
         # print(accuracy_score(Y_validation, predictions))
         # print(confusion_matrix(Y_validation, predictions))
         # print(classification_report(Y_validation, predictions))
-        return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n')], misc_table=[misc_table.to_html(classes='data_n')], image=png_image_b64_string)
+
 
 
 @app.route('/process', methods=['POST'])
