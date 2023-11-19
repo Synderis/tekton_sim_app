@@ -9,6 +9,7 @@ import inflect
 def output_graph(results_df):
     p = inflect.engine()
     trials = len(results_df)
+    print(trials)
     tick_times = results_df['tick_times'].tolist()
     no_anvils = len(results_df[(results_df['anvil_count'] == 0)].copy())
     one_anvils = len(results_df[(results_df['anvil_count'] == 1)].copy())
