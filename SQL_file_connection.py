@@ -140,17 +140,17 @@ def database():
         flag = True
     except:
         flag = False
-        pass
-    if not flag:
         form_dict.update(form_q.data)
-        if 'submit' and 'csrf_token' in form_dict:
-            form_dict.pop('submit')
-            form_dict.pop('csrf_token')
-        print(form_q.data)
-        new_dict_n = form_dict.copy()
-        print(form_dict)
-        print(form_q.ring.data)
-        data_n = session.query(TektonResults).filter_by(**new_dict_n)
+        pass
+    if 'submit' and 'csrf_token' in form_dict:
+        form_dict.pop('submit')
+        form_dict.pop('csrf_token')
+    # print(form_q.data)
+    new_dict = form_dict.copy()
+    print(form_dict)
+    # print(form_q.ring.data)
+    data_n = session.query(TektonResults).filter_by(**new_dict)
+    if not flag:
         print(data_n.statement)
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
@@ -170,9 +170,7 @@ def database():
                                image=png_image_b64_string)
     else:
         print('Generating hp table')
-        new_dict = form_dict.copy()
-        query_n = session.query(TektonResults).filter_by(**new_dict)
-        table_df = pd.read_sql(query_n.statement, con=db_engine)
+        table_df = pd.read_sql(data_n.statement, con=db_engine)
         # now we can run the query
         print(form_dict)
         print(new_dict)
@@ -222,9 +220,6 @@ def database():
         # print(accuracy_score(Y_validation, predictions))
         # print(confusion_matrix(Y_validation, predictions))
         # print(classification_report(Y_validation, predictions))
-
-
-
 
 
 if __name__ == '__main__':

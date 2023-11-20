@@ -85,9 +85,9 @@ def output_graph(results_df):
 
     plt.rcParams.update(
         {"lines.color": "silver", "patch.edgecolor": "black", "text.color": "black", "axes.facecolor": "silver",
-         "axes.edgecolor": "black", "axes.labelcolor": "black", "xtick.color": "black", "ytick.color": "black",
-         "grid.color": "silver", "figure.facecolor": "dimgray", "figure.edgecolor": "dimgray",
-         "axes.titlecolor": "black",
+         "axes.edgecolor": "white", "axes.labelcolor": "#ff0000", "xtick.color": "white", "ytick.color": "white",
+         "grid.color": "silver", "figure.facecolor": (0.0, 0.0, 0.0, 0.0), "figure.edgecolor": "white",
+         "axes.titlecolor": "#ff0000",
          "savefig.facecolor": "black", "savefig.edgecolor": "black"})
 
     fig = plt.figure()
