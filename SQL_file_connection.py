@@ -5,7 +5,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 from sqlalchemy.sql import text
 from sqlalchemy import URL
-from flask import render_template, Flask, request, redirect, url_for, Response, jsonify
+from flask import render_template, Flask, request, redirect, url_for, Response, jsonify, session
 from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
@@ -56,7 +56,7 @@ connection_url = engine.URL.create(
 db_engine = create_engine(connection_url, echo=False)
 
 SessionObject = sessionmaker(bind=db_engine)
-session = SessionObject()
+session_obj = SessionObject()
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_url
@@ -75,15 +75,8 @@ Bootstrap4(app)
 
 @app.route('/')
 def testdb():
-    return redirect(url_for("table"))
-    # try:
-    #     db.session.query(text('1')).from_statement(text('SELECT 1')).all()
-    #     return '<h1>It works.</h1>'
-    # except Exception as e:
-    #     # e holds description of the error
-    #     error_text = "<p>The error:<br>" + str(e) + "</p>"
-    #     hed = '<h1>Something is broken.</h1>'
-    #     return hed + error_text
+    return redirect(url_for("gear"))
+
 
 
 class TektonResults(db.Model):
@@ -120,38 +113,32 @@ class QueryForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-@app.route("/table", methods=['GET', 'POST',])
-def table():
+@app.route("/gear", methods=['GET', 'POST',])
+def gear():
     form_q = QueryForm()
-    if request.method == 'POST':
-        return redirect(url_for("database"))
-    return render_template(r"table.html", form_q=form_q)
-
-
-form_dict = {}
+    return render_template(r"gear.html", form_q=form_q)
 
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
-    # form_hp = HpEstimate()
     form_q = QueryForm()
+    if form_q.data.get('ring') is not None:
+        query_dict = form_q.data
+        if 'submit' and 'csrf_token' in query_dict:
+            query_dict.pop('submit')
+            query_dict.pop('csrf_token')
+        session['query_params'] = query_dict
     try:
         print(request.json)
         flag = True
     except:
         flag = False
-        form_dict.update(form_q.data)
         pass
-    if 'submit' and 'csrf_token' in form_dict:
-        form_dict.pop('submit')
-        form_dict.pop('csrf_token')
-    # print(form_q.data)
-    new_dict = form_dict.copy()
-    print(form_dict)
-    # print(form_q.ring.data)
-    data_n = session.query(TektonResults).filter_by(**new_dict)
+
     if not flag:
-        print(data_n.statement)
+        print(session['query_params'])
+        data_n = session_obj.query(TektonResults).filter_by(**session['query_params'])
+        # print(data_n.statement)
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
         fig = output_graph(df)
@@ -167,13 +154,13 @@ def database():
         png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
         plt.close()
         return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n', index=False)],
-                               image=png_image_b64_string)
+                               image=png_image_b64_string, json_data=session['query_params'])
     else:
         print('Generating hp table')
+        prev_q = eval(request.json.get("query_params"))
+        data_n = session_obj.query(TektonResults).filter_by(**prev_q)
         table_df = pd.read_sql(data_n.statement, con=db_engine)
         # now we can run the query
-        print(form_dict)
-        print(new_dict)
         hp_val = int(request.json.get("hpInput"))
         subset_table = table_df[(table_df['anvil_count'] == 1)].copy()
         total_above = round((len(table_df[table_df['hp_after_pre_anvil'] > hp_val].copy()) / len(table_df)) * 100, 2)

@@ -8,6 +8,7 @@
         <form onSubmit="return handleSubmit(event);">
             <input type="number" id="hpInput" name="hpInput" value="170" required/>
             <input type="submit" value="Submit" style="margin-top:5px;"/>
+            <input type="hidden" id="prev_data" value="{{ json_data }}">
             <div>Table comparing amounts of trials comparing hp value in percents</div>
             <div id="Results"></div>
         </form>
@@ -26,14 +27,18 @@
     event.preventDefault()
       let table = document.getElementById("Results")
       let number = document.getElementById("hpInput").value;
-      const body = {hpInput: number}
+      let prev_q = document.getElementById("prev_data").value;
+      const body = {hpInput: number, query_params: prev_q}
+
       var options = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
+
       };
+
       fetch("/database", options)
         .then((response) => response.text())
         .then((text) => {
