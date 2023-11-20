@@ -128,46 +128,29 @@ def table():
     return render_template(r"table.html", form_q=form_q)
 
 
-form_dict ={}
+form_dict = {}
 
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
     # form_hp = HpEstimate()
     form_q = QueryForm()
-    global form_dict
-
     try:
         print(request.json)
         flag = True
     except:
         flag = False
         pass
-
     if not flag:
-        print(form_q.data)
         form_dict.update(form_q.data)
+        if 'submit' and 'csrf_token' in form_dict:
+            form_dict.pop('submit')
+            form_dict.pop('csrf_token')
+        print(form_q.data)
+        new_dict_n = form_dict.copy()
         print(form_dict)
         print(form_q.ring.data)
-        ring_val = str(form_q.ring.data)
-        cm_val = bool(form_q.cm.data)
-        inq_val = bool(form_q.inq.data)
-        feros_val = bool(form_q.feros.data)
-        tort_val = bool(form_q.tort.data)
-        fang_val = bool(form_q.fang.data)
-        five_tick_val = bool(form_q.five_tick_only.data)
-        pre_veng_val = bool(form_q.preveng.data)
-        veng_camp_val = bool(form_q.veng_camp.data)
-        vuln_val = bool(form_q.vuln.data)
-        vuln_book_val = bool(form_q.book_of_water.data)
-        data_n = session.query(TektonResults).where(TektonResults.ring == ring_val, TektonResults.cm == cm_val,
-                                                    TektonResults.inq == inq_val, TektonResults.feros == feros_val,
-                                                    TektonResults.tort == tort_val, TektonResults.fang == fang_val,
-                                                    TektonResults.five_tick_only == five_tick_val,
-                                                    TektonResults.preveng == pre_veng_val,
-                                                    TektonResults.veng_camp == veng_camp_val,
-                                                    TektonResults.vuln == vuln_val,
-                                                    TektonResults.book_of_water == vuln_book_val)
+        data_n = session.query(TektonResults).filter_by(**new_dict_n)
         print(data_n.statement)
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
@@ -186,10 +169,8 @@ def database():
         return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n', index=False)],
                                image=png_image_b64_string)
     else:
-        print('here')
+        print('Generating hp table')
         new_dict = form_dict.copy()
-        new_dict.pop('submit')
-        new_dict.pop('csrf_token')
         query_n = session.query(TektonResults).filter_by(**new_dict)
         table_df = pd.read_sql(query_n.statement, con=db_engine)
         # now we can run the query
@@ -241,6 +222,9 @@ def database():
         # print(accuracy_score(Y_validation, predictions))
         # print(confusion_matrix(Y_validation, predictions))
         # print(classification_report(Y_validation, predictions))
+
+
+
 
 
 if __name__ == '__main__':
