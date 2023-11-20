@@ -78,6 +78,12 @@ def testdb():
     return redirect(url_for("gear"))
 
 
+class style():
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    BLUE = '\033[34m'
+    RESET = '\033[0m'
+
 
 class TektonResults(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
@@ -129,14 +135,15 @@ def database():
             query_dict.pop('csrf_token')
         session['query_params'] = query_dict
     try:
-        print(request.json)
+        print(style.GREEN + "{0}".format(request.json) + style.RESET, end='')
         flag = True
     except:
         flag = False
         pass
 
     if not flag:
-        print(session['query_params'])
+        print(style.GREEN + "{0}".format(session['query_params']) + style.RESET, end='')
+        print('------------------------------------------Generating Output Graphs------------------------------------------')
         data_n = session_obj.query(TektonResults).filter_by(**session['query_params'])
         # print(data_n.statement)
         matplotlib.use('agg')
@@ -156,7 +163,7 @@ def database():
         return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n', index=False)],
                                image=png_image_b64_string, json_data=session['query_params'])
     else:
-        print('Generating hp table')
+        print('------------------------------------------Generating Hp Table------------------------------------------')
         prev_q = eval(request.json.get("query_params"))
         data_n = session_obj.query(TektonResults).filter_by(**prev_q)
         table_df = pd.read_sql(data_n.statement, con=db_engine)
