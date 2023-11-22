@@ -21,7 +21,9 @@
             {% endfor %}
         </table>
     </div>
-
+<div>
+    <button onclick="window.location.href = '{{url_for('gear')}}';" >Return to Gear Selection</button>
+</div>
 <script>
     function handleSubmit(event) {
     event.preventDefault()
@@ -54,6 +56,11 @@
     }
 
 
+</script>
+<script>
+function hrefFunction(){
+                windows.location.href = "http://127.0.0.1:5000/gear";
+            }
 </script>
 <style type="text/css">
 

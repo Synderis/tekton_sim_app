@@ -135,14 +135,14 @@ def database():
             query_dict.pop('csrf_token')
         session['query_params'] = query_dict
     try:
-        print(style.GREEN + "{0}".format(request.json) + style.RESET, end='')
+        print(style.BLUE + "{0}".format(request.json) + style.RESET)
         flag = True
     except:
         flag = False
         pass
 
     if not flag:
-        print(style.GREEN + "{0}".format(session['query_params']) + style.RESET, end='')
+        print(style.GREEN + "{0}".format(session['query_params']) + style.RESET)
         print('------------------------------------------Generating Output Graphs------------------------------------------')
         data_n = session_obj.query(TektonResults).filter_by(**session['query_params'])
         # print(data_n.statement)
@@ -152,10 +152,10 @@ def database():
         fig.dpi = 100
         fig.set_figwidth(16)
         fig.set_figheight(9)
-        fig.subplots_adjust(wspace=.2, hspace=.05, right=.95, left=0.04, top=.92, bottom=.07)
+        fig.subplots_adjust(wspace=.2, hspace=.05, right=.95, left=0.04, top=.91, bottom=.07)
         png_image = io.BytesIO()
         FigureCanvas(fig).print_png(png_image)
-        df_new = df.iloc[0:7].copy()
+        df_new = df.iloc[0:2].copy()
         # Encode PNG image to base64 string
         png_image_b64_string = "data:image/png;base64,"
         png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
