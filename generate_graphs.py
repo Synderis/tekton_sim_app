@@ -135,8 +135,8 @@ def output_graph(results_df):
     bin_number_second = int(np.ceil((m.max() - m.min()) / bin_width_second))
 
     cumulative_total_graph = sns.kdeplot(tick_times_df, x='tick_times', cumulative=True, common_norm=False,
-                                         common_grid=True, legend=True, color='crimson')
-    empirical_total_graph = sns.ecdfplot(tick_times_df, x='tick_times', legend=True, color='green')
+                                         common_grid=True, legend=True, color='crimson', linewidth=2)
+    empirical_total_graph = sns.ecdfplot(tick_times_df, x='tick_times', legend=True, color='k', linewidth=1.75)
     data_x, data_y = cumulative_total_graph.lines[0].get_data()
     yi = .99
     xi = np.interp(yi, data_y, data_x)
