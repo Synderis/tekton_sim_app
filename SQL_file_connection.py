@@ -148,6 +148,8 @@ def database():
         # print(data_n.statement)
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
+        if len(df) == 0:
+            redirect(url_for('database/update'))
         fig = output_graph(df)
         fig.dpi = 100
         fig.set_figwidth(16)
@@ -215,6 +217,9 @@ def database():
         # print(confusion_matrix(Y_validation, predictions))
         # print(classification_report(Y_validation, predictions))
 
+@app.route('/database/update', methods=['GET', 'POST',])
+def database_import():
+    return
 
 if __name__ == '__main__':
     app.run(debug=True)
