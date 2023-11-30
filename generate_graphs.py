@@ -15,9 +15,11 @@ def output_graph(results_df):
     one_anvils = len(results_df[(results_df['anvil_count'] == 1)].copy())
     two_anvils = len(results_df[(results_df['anvil_count'] == 2)].copy())
     three_or_more_anvils = len(results_df[(results_df['anvil_count'] >= 3)].copy())
-    no_h_one_a = len(results_df[(results_df['hammer_count'] == 0) & (results_df['anvil_count'] == 1)].copy())
-    no_hammer_total = len(results_df[(results_df['hammer_count'] == 0)].copy())
     one_h_one_a = len(results_df[(results_df['hammer_count'] == 1) & (results_df['anvil_count'] == 1)].copy())
+    avg_hp_one_h = results_df[results_df['hammer_count'] == 1].copy()
+    avg_hp_one_h = round(avg_hp_one_h['hp_after_pre_anvil'].mean(),2)
+    avg_hp_two_h = results_df[results_df['hammer_count'] == 2].copy()
+    avg_hp_two_h = round(avg_hp_two_h['hp_after_pre_anvil'].mean(), 2)
     one_hammer_total = len(results_df[(results_df['hammer_count'] == 1)].copy())
     two_h_one_a = len(results_df[(results_df['hammer_count'] == 2) & (results_df['anvil_count'] == 1)].copy())
     two_hammer_total = len(results_df[(results_df['hammer_count'] == 2)][['hammer_count']].copy())
@@ -25,7 +27,6 @@ def output_graph(results_df):
     tick_times_df['completion'] = 1
     tick_times_df = tick_times_df[['tick_times', 'completion']]
     tick_times_one_anvil = tick_times_df[tick_times_df['tick_times'] <= 150][['tick_times']].copy()
-
     tick_times_raw = tick_times
     hist2, bin_edges2 = np.histogram(tick_times_raw, density=True)
     diff_bin_edge = np.diff(bin_edges2)
@@ -46,13 +47,7 @@ def output_graph(results_df):
     one_anvil_num = output_formatter(one_anvils, trials, True)
     two_anvil_num = output_formatter(two_anvils, trials, True)
     three_anvil_num = output_formatter(three_or_more_anvils, trials, True)
-    no_ham_rate_tot = output_formatter(no_h_one_a, trials, False)
-    one_ham_rate_tot = output_formatter(one_h_one_a, trials, False)
-    two_ham_rate_tot = output_formatter(two_h_one_a, trials, False)
 
-    one_ham_reset = output_formatter((one_h_one_a + two_h_one_a), (one_hammer_total + two_hammer_total), False)
-    two_ham_reset = output_formatter(two_h_one_a, two_hammer_total, False)
-    no_ham_rate = output_formatter(no_h_one_a, one_anvils, True)
     one_ham_rate = output_formatter(one_h_one_a, one_anvils, True)
     two_ham_rate = output_formatter(two_h_one_a, one_anvils, True)
     sub_115_df = output_formatter(sub_115, one_anvils, True)
@@ -60,13 +55,12 @@ def output_graph(results_df):
 
     table_dataframe = pd.DataFrame({f'Trials: {trials}': ['No Anvil', 'One Anvil', 'Two Anvil', 'Three or More'],
                                     'Total, % Total': [no_anvil_num, one_anvil_num, two_anvil_num, three_anvil_num],
-                                    'Total, Sub 1:15 %': ['N/A', sub_115_df, '0', '0'],
-                                    'Total, Sub 1:00 %': ['N/A', sub_100_df, '0', '0']})
-    table_dataframe2 = pd.DataFrame({f'Trials: {trials}': ['No Hammer', 'One Hammer', 'Two Hammer'],
-                                     'Total, % of One Anvils': [no_ham_rate, one_ham_rate, two_ham_rate],
-                                     '% of Total Trials': [no_ham_rate_tot, one_ham_rate_tot, two_ham_rate_tot],
-                                     (r"One Anvil Ham. $\subset$ Total Ham."): ['N/A', f'{one_ham_reset} 1 & 2 Ham.',
-                                                                                f'{two_ham_reset} 2 Ham. only']})
+                                    'Total, Sub 1:15 %': [no_anvil_num, sub_115_df, 'N/A', 'N/A'],
+                                    'Total, Sub 1:00 %': [no_anvil_num, sub_100_df, 'N/A', 'N/A']})
+    table_dataframe2 = pd.DataFrame({f'Trials: {trials}': ['One Hammer', 'Two Hammer'],
+                                     r"Amount for Total Trials": [one_hammer_total, two_hammer_total],
+                                     'Total, % of One Anvils': [one_ham_rate, two_ham_rate],
+                                     r"HP Avg Pre anvil": [avg_hp_one_h, avg_hp_two_h]})
     minutes_list = ['0:45', '0:48', '0:51', '0:54', '0:57', '1:00', '1:03', '1:06', '1:09', '1:12', '1:15',
                     '1:18', '1:21', '1:24', '1:27', '1:30', '1:33', '1:36', '1:39', '1:42', '1:45', '1:48',
                     '1:51', '1:54', '1:57', '2:00', '2:03', '2:06', '2:09', '2:12', '2:15', '2:18', '2:21',
@@ -109,7 +103,7 @@ def output_graph(results_df):
 
     mpl_table2 = ax2.table(cellText=table_dataframe2.values,
                            colLabels=table_dataframe2.columns, cellLoc='center', rowLoc='center', loc='upper right',
-                           cellColours=colors_list[0:3], colColours=col_color)
+                           cellColours=colors_list[0:2], colColours=col_color)
     mpl_table2.auto_set_font_size(False)
     mpl_table2.set_fontsize(9)
     ax2.axis(False)
