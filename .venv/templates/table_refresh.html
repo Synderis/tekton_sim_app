@@ -12,20 +12,6 @@
             <div>Input an hp value to compare to the hp values that tekton returns to the anvil with. The default is the average hp value from all the trials.</div>
             <div id="Results"></div>
         </form>
-    </div>{% extends "base.html" %}
-{% block title %}Index{% endblock %}
-{% from "bootstrap4/form.html" import render_form %}
-{% block head %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<div class="container">
-        <img src="{{ image }}" class="high-quality" style="width:80%;"/>
-        <form onSubmit="return handleSubmit(event);">
-            <input type="number" id="hpInput" name="hpInput" value="{{ hp_default }}" required/>
-            <input type="submit" value="Submit" style="margin-top:5px;"/>
-            <input type="hidden" id="prev_data" value="{{ json_data }}">
-            <div>Input an hp value to compare to the hp values that tekton returns to the anvil with. The default is the average hp value from all the trials.</div>
-            <div id="Results"></div>
-        </form>
     </div>
     <div class="data-table">
         <table class="result-table" style="width:100%;">
