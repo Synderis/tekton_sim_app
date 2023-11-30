@@ -78,7 +78,6 @@ def run_script():
             self.hammer_hit_count = hammer_hit_count
             self.hp_pool = hp_pool
 
-
         def reset(self):
             self.four_tick_hit_counter = 0
             self.five_tick_hit_counter = 0
@@ -108,7 +107,6 @@ def run_script():
             self.static_crush_weapon = static_crush_weapon
             self.five_tick_weapon = five_tick_weapon
 
-
     def create_objects():
         trial_parameters_pre = NewParams(**param_container)
         return trial_parameters_pre
@@ -130,7 +128,6 @@ def run_script():
             four_and_five = False
         else:
             four_and_five = True
-
 
     # Function that will modify the gear setup based on selections from the gui prompt
     # Now that im looking at it again gear selection and loadout adjuster are probably redundant functions
@@ -155,7 +152,6 @@ def run_script():
                 five_tick_weapon = slash
         loadout_adjuster(attack_gear, strength_gear, five_tick_weapon)
         return loadout
-
 
     def loadout_adjuster(att_modifier, str_modifier, five_tick_style):
         loadout_list = [loadout.dwh_str_bonus, loadout.four_tick_str_bonus, loadout.fang_str_bonus, loadout.scy_str_bonus,
