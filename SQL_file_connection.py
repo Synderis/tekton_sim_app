@@ -105,7 +105,7 @@ class TektonResults(db.Model):
 
 
 class QueryForm(FlaskForm):
-    ring = SelectField('Select ring', choices=[('b_ring', 'B ring'), ('brim', 'Brim'), ('ultor_ring', 'Ultor Ring'), ('lightbearer', 'Lightbearer'), (None, 'None')])
+    ring = SelectField('Select ring', choices=[('ultor_ring', 'Ultor Ring'), ('brim', 'Brim'), ('b_ring', 'B ring'), ('lightbearer', 'Lightbearer'), (None, 'None')])
     cm = BooleanField('CM', default=False)
     inq = BooleanField('Inq', default=False)
     feros = BooleanField('Feros', default=False)
@@ -148,6 +148,9 @@ def database():
         # print(data_n.statement)
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
+        if len(df) == 0:
+            redirect(url_for('database/update'))
+        hp_avg = int(df['hp_after_pre_anvil'].mean())
         fig = output_graph(df)
         fig.dpi = 100
         fig.set_figwidth(16)
@@ -160,8 +163,9 @@ def database():
         png_image_b64_string = "data:image/png;base64,"
         png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
         plt.close()
+
         return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n', index=False)],
-                               image=png_image_b64_string, json_data=session['query_params'])
+                               image=png_image_b64_string, json_data=session['query_params'], hp_default=hp_avg)
     else:
         print('------------------------------------------Generating Hp Table------------------------------------------')
         prev_q = eval(request.json.get("query_params"))
@@ -169,10 +173,10 @@ def database():
         table_df = pd.read_sql(data_n.statement, con=db_engine)
         # now we can run the query
         hp_val = int(request.json.get("hpInput"))
-        subset_table = table_df[(table_df['anvil_count'] == 1)].copy()
+        subset_table = table_df[(table_df['anvil_count'] <= 1)].copy()
         total_above = round((len(table_df[table_df['hp_after_pre_anvil'] > hp_val].copy()) / len(table_df)) * 100, 2)
         total_below = round((len(table_df[table_df['hp_after_pre_anvil'] < hp_val].copy()) / len(table_df)) * 100, 2)
-        total_above_subset = round((len(table_df[(table_df['hp_after_pre_anvil'] > hp_val) & (table_df['anvil_count'] == 1)].copy()) / len(
+        total_above_subset = round((len(table_df[(table_df['hp_after_pre_anvil'] > hp_val) & (table_df['anvil_count'] <= 1)].copy()) / len(
             subset_table)) * 100, 2)
         total_below_subset = round((len(
            table_df[(table_df['hp_after_pre_anvil'] < hp_val) & (table_df['anvil_count'] == 1)].copy()) / len(
@@ -215,6 +219,10 @@ def database():
         # print(confusion_matrix(Y_validation, predictions))
         # print(classification_report(Y_validation, predictions))
 
+
+@app.route('/database/update', methods=['GET', 'POST',])
+def database_import():
+    return
 
 if __name__ == '__main__':
     app.run(debug=True)
