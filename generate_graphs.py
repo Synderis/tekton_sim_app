@@ -58,17 +58,15 @@ def output_graph(results_df):
     sub_115_df = output_formatter(sub_115, one_anvils, True)
     sub_100_df = output_formatter(sub_100, one_anvils, True)
 
-    table_dataframe = pd.DataFrame(
-        {('trials = ' + str(trials)): ['no anvil', 'one anvil', 'two anvil', 'three or more'],
-         'total, % total': [no_anvil_num, one_anvil_num, two_anvil_num, three_anvil_num],
-         'total, sub 1:15 %': ['N/A', sub_115_df, '0', '0'],
-         'total, sub 1:00 %': ['N/A', sub_100_df, '0', '0']})
-    table_dataframe2 = pd.DataFrame({('trials = ' + str(trials)): ['no hammer', 'one hammer', 'two hammer'],
-                                     'total, % of 1 anvils': [no_ham_rate, one_ham_rate, two_ham_rate],
-                                     '% of total trials': [no_ham_rate_tot, one_ham_rate_tot, two_ham_rate_tot],
-                                     ('1 anvil ham. ' + r'$\subset$' + ' total ham.'): ['N/A', (
-                                                 str(one_ham_reset) + ' 1 & 2 Ham.'), (
-                                                                                                    str(two_ham_reset) + ' 2 ham. only')]})
+    table_dataframe = pd.DataFrame({f'Trials: {trials}': ['No Anvil', 'One Anvil', 'Two Anvil', 'Three or More'],
+                                    'Total, % Total': [no_anvil_num, one_anvil_num, two_anvil_num, three_anvil_num],
+                                    'Total, Sub 1:15 %': ['N/A', sub_115_df, '0', '0'],
+                                    'Total, Sub 1:00 %': ['N/A', sub_100_df, '0', '0']})
+    table_dataframe2 = pd.DataFrame({f'Trials: {trials}': ['No Hammer', 'One Hammer', 'Two Hammer'],
+                                     'Total, % of One Anvils': [no_ham_rate, one_ham_rate, two_ham_rate],
+                                     '% of Total Trials': [no_ham_rate_tot, one_ham_rate_tot, two_ham_rate_tot],
+                                     (r"One Anvil Ham. $\subset$ Total Ham."): ['N/A', f'{one_ham_reset} 1 & 2 Ham.',
+                                                                                f'{two_ham_reset} 2 Ham. only']})
     minutes_list = ['0:45', '0:48', '0:51', '0:54', '0:57', '1:00', '1:03', '1:06', '1:09', '1:12', '1:15',
                     '1:18', '1:21', '1:24', '1:27', '1:30', '1:33', '1:36', '1:39', '1:42', '1:45', '1:48',
                     '1:51', '1:54', '1:57', '2:00', '2:03', '2:06', '2:09', '2:12', '2:15', '2:18', '2:21',
@@ -83,10 +81,6 @@ def output_graph(results_df):
                                 '4:10', '4:35', '5:00', '5:25', '5:50', '6:15', '6:40', '7:05', '7:30', '7:55',
                                 '8:20', '8:45', '9:10', '9:35', '10:00', '10:25', '10:50', '11:15', '11:40', '12:05',
                                 '12:30', '12:55', '13:20', '13:45']
-
-    def plot_adjustment():
-        plt.tick_params(labelleft=False, left=False, labelbottom=False, bottom=False)
-        # plt.subplots_adjust(wspace=.2, hspace=0)
 
     plt.rcParams.update(
         {"lines.color": "silver", "patch.edgecolor": "black", "text.color": "black", "text.antialiased": "True", "axes.facecolor": "silver",
@@ -104,19 +98,18 @@ def output_graph(results_df):
     ax4t = fig.add_subplot(gs[2, 0])
     ax4 = fig.add_subplot(gs[2, 0])
     ax4t.axes.set_visible(False)
-    xd = ['gray', 'gray', 'gray', 'gray']
-    silver = ["silver", "silver", "silver", "silver"]
-    colors_list = [silver, silver, silver, silver]
+    col_color = ['gray'] * 4
+    colors_list = [["silver"] * 4] * 4
     mpl_table = ax1.table(cellText=table_dataframe.values,
                           colLabels=table_dataframe.columns, cellLoc='center', rowLoc='center', loc='upper right',
-                          cellColours=colors_list, colColours=xd)
+                          cellColours=colors_list, colColours=col_color)
     mpl_table.auto_set_font_size(False)
     ax1.axis(False)
     mpl_table.set_fontsize(9)
 
     mpl_table2 = ax2.table(cellText=table_dataframe2.values,
                            colLabels=table_dataframe2.columns, cellLoc='center', rowLoc='center', loc='upper right',
-                           cellColours=colors_list[0:3], colColours=xd)
+                           cellColours=colors_list[0:3], colColours=col_color)
     mpl_table2.auto_set_font_size(False)
     mpl_table2.set_fontsize(9)
     ax2.axis(False)
@@ -141,14 +134,14 @@ def output_graph(results_df):
     yi = .99
     xi = np.interp(yi, data_y, data_x)
     cumulative_total_graph.set(xticks=(np.arange(0, 1400, step=25)), xlim=(0, xi), yticks=(np.arange(0, 1.1, step=.1)),
-                               ylim=(0, 1), ylabel='probability of killing tekton', xlabel='time of encounter in ticks',
-                               title='cumulative probability of killing tekton')
+                               ylim=(0, 1), ylabel='Probability of Completing Tekton',
+                               xlabel='Time of Encounter in Ticks',
+                               title='Cumulative Probability of Completing Tekton')
     cumulative_total_graph.set_xticklabels(cumulative_total_graph.get_xticklabels(), rotation=45)
     aux_axis_cumulative = cumulative_total_graph.twiny()
     sns.kdeplot(ax=aux_axis_cumulative, bins=80)
-    cumulative_total_graph.legend(labels=('theoretical', 'empirical'), labelcolor='black')
-    aux_axis_cumulative.set(xticks=(np.arange(0, 840, step=25)), xlim=(0, (xi * .6)),
-                            xlabel='time of encounter in seconds')
+    cumulative_total_graph.legend(labels=('Theoretical', 'Empirical'), labelcolor='black')
+    aux_axis_cumulative.set(xticks=(np.arange(0, 840, step=25)), xlim=(0, (xi * .6)), xlabel='Time of Encounter in Seconds')
     aux_axis_cumulative.set_xticklabels(minutes_list_bigger_step, rotation=45)
     cumulative_total_graph.grid('visible', color='black')
 
@@ -161,8 +154,8 @@ def output_graph(results_df):
 
     total_sample_main_plot_xticks = (np.arange(75, (np.max(tick_times) + 25), step=25))
     total_sample_main_plot.xaxis.set_tick_params(rotation=45)
-    total_sample_main_plot_aux_axis.set(ylabel='Probability density')
-    total_sample_main_plot.set(ylabel='number of killed tektons in sample')
+    total_sample_main_plot_aux_axis.set(ylabel='Probability Density')
+    total_sample_main_plot.set(ylabel='Number of Tektons in Sample')
     total_sample_main_plot_aux_xaxis = total_sample_main_plot.secondary_xaxis('top')
     total_sample_main_plot_aux_xaxis.xaxis.set_tick_params(rotation=45)
     total_sample_main_plot_aux_xaxis.set(xticks=(np.arange(75, (np.max(tick_times)), step=25)),
@@ -170,14 +163,13 @@ def output_graph(results_df):
     total_sample_main_plot_aux_xaxis_labels = np.arange(75, (np.max(tick_times)), step=25)
     total_sample_main_plot_aux_xaxis.set_xticklabels(
         minutes_list_big_step[3:(len(total_sample_main_plot_aux_xaxis_labels) + 3)])
-    total_sample_main_plot.set(title='tekton density histogram of ' + p.number_to_words(trials) + ' trials',
+    total_sample_main_plot.set(title=f'Tekton Density Histogram of {p.number_to_words(trials).title()} Trials',
                                xticks=total_sample_main_plot_xticks, xlim=(75, (np.max(tick_times))))
     total_sample_main_plot.locator_params(nbins=22, axis='y')
     total_sample_main_plot_aux_axis.locator_params(nbins=22, axis='y')
-    total_sample_main_plot.set_xlabel('time of encounter in ticks')
-    total_sample_main_plot_aux_xaxis.set_xlabel('time of encounter in minutes:seconds')
-    total_sample_main_plot.xaxis.grid(True, color='black')
-    total_sample_main_plot.yaxis.grid(True, color='black')
+    total_sample_main_plot.set_xlabel('Time of Encounter in Ticks')
+    total_sample_main_plot_aux_xaxis.set_xlabel('Time of Encounter in Minutes and Seconds')
+    total_sample_main_plot.grid(True, color='black')
     total_sample_main_plot.set_axisbelow(True)
 
     # under one anvil graph
@@ -189,25 +181,24 @@ def output_graph(results_df):
     sns.kdeplot(tick_times_one_anvil, palette=['r'], ax=one_anvil_main_plot_aux_axis, legend=False)
 
     one_anvil_main_plot.xaxis.set_tick_params(rotation=45)
-    one_anvil_main_plot_aux_axis.set(ylabel='Probability density')
-    one_anvil_main_plot.set(ylabel='number of killed tektons in sample')
+    one_anvil_main_plot_aux_axis.set(ylabel='Probability Density')
+    one_anvil_main_plot.set(ylabel='Number of Tektons in Sample')
     one_anvil_main_plot_aux_xaxis = one_anvil_main_plot.secondary_xaxis('top')
     one_anvil_main_plot_aux_xaxis.xaxis.set_tick_params(rotation=45)
 
     one_anvil_main_plot_xticks = (np.arange(75, 165, step=5))
     one_anvil_main_plot.set(xticks=one_anvil_main_plot_xticks, xlim=(75, 160),
-                            title='number of tektons under one anvil in ' + p.number_to_words(trials) + ' trials')
+                            title=f'Number of Tektons Within One Anvil in {p.number_to_words(trials).title()} Trials')
     one_anvil_main_plot.locator_params(nbins=22, axis='y')
-    one_anvil_main_plot.set_xlabel('time of encounter in ticks')
-    one_anvil_main_plot_aux_xaxis.set_xlabel('time of encounter in minutes:seconds')
+    one_anvil_main_plot.set_xlabel('Time of Encounter in Ticks')
+    one_anvil_main_plot_aux_xaxis.set_xlabel('Time of Encounter in Minutes and Seconds')
     one_anvil_main_plot_aux_axis.locator_params(nbins=22, axis='y')
     one_anvil_main_plot.xaxis.set_tick_params(rotation=45)
 
     one_anvil_main_plot_aux_xaxis.set(xticks=(np.arange(75, 165, step=5)), xlim=(75, 160))
     one_anvil_main_plot_aux_xaxis.set_xticklabels(minutes_list[:18])
     one_anvil_main_plot_aux_xaxis.xaxis.set_tick_params(rotation=45)
-    one_anvil_main_plot.xaxis.grid(True, color='black')
-    one_anvil_main_plot.yaxis.grid(True, color='black')
+    one_anvil_main_plot.grid(True, color='black')
     one_anvil_main_plot.set_axisbelow(True)
 
     plt.subplots_adjust(wspace=.25, hspace=0, right=.93, left=0.05, top=.90, bottom=.07)
