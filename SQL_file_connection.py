@@ -1,3 +1,5 @@
+import time
+
 import pandas as pd
 import wtforms
 from flask_sqlalchemy import SQLAlchemy
@@ -25,7 +27,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from flask_bootstrap import Bootstrap4
-
+import update_sim_data
 from generate_graphs import output_graph
 from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField, widgets
 from wtforms.widgets import Input, SubmitInput
@@ -133,6 +135,7 @@ def database():
         if 'submit' and 'csrf_token' in query_dict:
             query_dict.pop('submit')
             query_dict.pop('csrf_token')
+        print(query_dict)
         session['query_params'] = query_dict
     try:
         print(style.BLUE + "{0}".format(request.json) + style.RESET)
@@ -149,11 +152,14 @@ def database():
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
         if len(df) == 0:
-            redirect(url_for('database/update'))
+            update_sim_data.map_parameters(**session['query_params'])
+            while len(df) == 0:
+                time.sleep(1)
+                df = pd.read_sql(data_n.statement, con=db_engine)
         hp_avg = int(df['hp_after_pre_anvil'].mean())
         fig = output_graph(df)
         fig.dpi = 100
-        fig.set_figwidth(16)
+        fig.set_figwidth(17)
         fig.set_figheight(9)
         fig.subplots_adjust(wspace=.2, hspace=.05, right=.95, left=0.04, top=.91, bottom=.07)
         png_image = io.BytesIO()
