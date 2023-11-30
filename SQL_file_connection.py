@@ -1,7 +1,5 @@
 import time
-
 import pandas as pd
-import wtforms
 from flask_sqlalchemy import SQLAlchemy
 import matplotlib
 from matplotlib import pyplot as plt
