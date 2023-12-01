@@ -1,7 +1,5 @@
 import time
-
 import pandas as pd
-import wtforms
 from flask_sqlalchemy import SQLAlchemy
 import matplotlib
 from matplotlib import pyplot as plt
@@ -157,21 +155,27 @@ def database():
                 time.sleep(1)
                 df = pd.read_sql(data_n.statement, con=db_engine)
         hp_avg = int(df['hp_after_pre_anvil'].mean())
-        fig = output_graph(df)
-        fig.dpi = 100
-        fig.set_figwidth(17)
-        fig.set_figheight(9)
-        fig.subplots_adjust(wspace=.2, hspace=.05, right=.95, left=0.04, top=.91, bottom=.07)
-        png_image = io.BytesIO()
-        FigureCanvas(fig).print_png(png_image)
         df_new = df.iloc[0:2].copy()
-        # Encode PNG image to base64 string
-        png_image_b64_string = "data:image/png;base64,"
-        png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
-        plt.close()
+        group_plot_fig, cumul_graph_fig, one_anvil_hist_kde_fig, total_sample_hist_kde_fig = output_graph(df)
 
+        def create_img_str(figure_, subplots_):
+            figure_.dpi = 100
+            figure_.set_figwidth(17)
+            figure_.set_figheight(9)
+            if subplots_:
+                figure_.subplots_adjust(wspace=.2, hspace=.05, right=.95, left=0.04, top=.91, bottom=.07)
+            png_image = io.BytesIO()
+            FigureCanvas(figure_).print_png(png_image)
+            plt.close()
+            png_image_b64_string = "data:image/png;base64,"
+            png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
+            return png_image_b64_string
+
+        group_plot_img, cumul_graph_img, one_anvil_hist_kde_img, total_sample_hist_kde_img = create_img_str(group_plot_fig, True), create_img_str(cumul_graph_fig, False), create_img_str(one_anvil_hist_kde_fig, False), create_img_str(total_sample_hist_kde_fig, False)
         return render_template(r"table_refresh.html", data_table=[df_new.to_html(classes='data_n', index=False)],
-                               image=png_image_b64_string, json_data=session['query_params'], hp_default=hp_avg)
+                               group_image=group_plot_img, cdf_img=cumul_graph_img,
+                               one_anvil_img=one_anvil_hist_kde_img, total_anvil_img=total_sample_hist_kde_img,
+                               json_data=session['query_params'], hp_default=hp_avg)
     else:
         print('------------------------------------------Generating Hp Table------------------------------------------')
         prev_q = eval(request.json.get("query_params"))

@@ -1,4 +1,3 @@
-import statistics
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -17,7 +16,7 @@ def output_graph(results_df):
     three_or_more_anvils = len(results_df[(results_df['anvil_count'] >= 3)].copy())
     one_h_one_a = len(results_df[(results_df['hammer_count'] == 1) & (results_df['anvil_count'] == 1)].copy())
     avg_hp_one_h = results_df[results_df['hammer_count'] == 1].copy()
-    avg_hp_one_h = round(avg_hp_one_h['hp_after_pre_anvil'].mean(),2)
+    avg_hp_one_h = round(avg_hp_one_h['hp_after_pre_anvil'].mean(), 2)
     avg_hp_two_h = results_df[results_df['hammer_count'] == 2].copy()
     avg_hp_two_h = round(avg_hp_two_h['hp_after_pre_anvil'].mean(), 2)
     one_hammer_total = len(results_df[(results_df['hammer_count'] == 1)].copy())
@@ -69,21 +68,24 @@ def output_graph(results_df):
                              '2:30', '2:45', '3:00', '3:15', '3:30', '3:45', '4:00', '4:15', '4:30', '4:45',
                              '5:00', '5:15', '5:30', '5:45', '6:00', '6:15', '6:30', '6:45', '7:00', '7:15',
                              '7:30', '7:45', '8:00', '8:15', '8:30', '8:45', '9:00', '9:15', '9:30', '9:45',
-                             '10:00', '10:15', '10:30', '10:45', '11:00', '11:15', '11:30', '11:45', '12:00', '12:15',
+                             '10:00', '10:15', '10:30', '10:45', '11:00', '11:15', '11:30', '11:45', '12:00',
+                             '12:15',
                              '12:30', '12:45', '13:00', '13:15', '13:30', '13:45']
     minutes_list_bigger_step = ['0:00', '0:25', '0:50', '1:15', '1:40', '2:05', '2:30', '2:55', '3:20', '3:45',
                                 '4:10', '4:35', '5:00', '5:25', '5:50', '6:15', '6:40', '7:05', '7:30', '7:55',
-                                '8:20', '8:45', '9:10', '9:35', '10:00', '10:25', '10:50', '11:15', '11:40', '12:05',
+                                '8:20', '8:45', '9:10', '9:35', '10:00', '10:25', '10:50', '11:15', '11:40',
+                                '12:05',
                                 '12:30', '12:55', '13:20', '13:45']
 
     plt.rcParams.update(
-        {"lines.color": "silver", "patch.edgecolor": "black", "text.color": "black", "text.antialiased": "True", "axes.facecolor": "silver",
+        {"lines.color": "silver", "patch.edgecolor": "black", "text.color": "black", "text.antialiased": "True",
+         "axes.facecolor": "silver",
          "axes.edgecolor": "white", "axes.labelcolor": "#ff0000", "xtick.color": "white", "ytick.color": "white",
          "grid.color": "silver", "figure.facecolor": (0.0, 0.0, 0.0, 0.0), "figure.edgecolor": "white",
          "axes.titlecolor": "#ff0000",
          "savefig.facecolor": "black", "savefig.edgecolor": "black"})
 
-    fig = plt.figure()
+    fig = plt.figure(1)
     gs = fig.add_gridspec(3, 2)
     ax1 = fig.add_subplot(gs[0, 0])
     ax2 = fig.add_subplot(gs[1, 0])
@@ -121,13 +123,106 @@ def output_graph(results_df):
     bin_width_second = (2 * iqr_second) / ((len(m)) ** (1. / 3.))
     bin_number_second = int(np.ceil((m.max() - m.min()) / bin_width_second))
 
+    def cumul_graph():
+        fig2 = plt.figure(2)
+        gs2 = fig2.add_gridspec(1, 1)
+        ax_n = fig2.add_subplot(gs2[0, 0])
+        cumulative_indiv_graph = sns.kdeplot(tick_times_df, x='tick_times', cumulative=True, common_norm=False,
+                                             common_grid=True, legend=True, color='crimson', linewidth=2)
+        empirical_total_graph = sns.ecdfplot(tick_times_df, x='tick_times', legend=True, color='k', linewidth=1.75)
+        data_x, data_y = cumulative_indiv_graph.lines[0].get_data()
+        yi = .99
+        xi = np.interp(yi, data_y, data_x)
+        cumulative_indiv_graph.set(xticks=(np.arange(0, 1400, step=25)), xlim=(0, xi),
+                                   yticks=(np.arange(0, 1.1, step=.1)),
+                                   ylim=(0, 1), ylabel='Probability of Completing Tekton',
+                                   xlabel='Time of Encounter in Ticks',
+                                   title='Cumulative Probability of Completing Tekton')
+        cumulative_indiv_graph.set_xticklabels(cumulative_indiv_graph.get_xticklabels(), rotation=45)
+        aux_axis_indiv_cumulative = cumulative_indiv_graph.twiny()
+        sns.kdeplot(ax=aux_axis_indiv_cumulative, bins=80)
+        cumulative_indiv_graph.legend(labels=('Theoretical', 'Empirical'), labelcolor='black')
+        aux_axis_indiv_cumulative.set(xticks=(np.arange(0, 840, step=25)), xlim=(0, (xi * .6)),
+                                xlabel='Time of Encounter in Seconds')
+        aux_axis_indiv_cumulative.set_xticklabels(minutes_list_bigger_step, rotation=45)
+        cumulative_indiv_graph.grid('visible', color='black')
+        return fig2
+
+    def total_sample_hist_kde():
+        fig3 = plt.figure(3)
+        gs3 = fig3.add_gridspec(1, 1)
+        total_sample_indiv_plot = fig3.add_subplot(gs3[0, 0])
+        with sns.axes_style(style='ticks', rc={'ytick.left': True}):
+            sns.histplot(tick_times, bins=bin_number, ax=total_sample_indiv_plot, color='orange', alpha=1,
+                         edgecolor='k',
+                         linewidth=1)
+        total_sample_indiv_plot_aux_axis = total_sample_indiv_plot.twinx()
+
+        sns.kdeplot(tick_times, ax=total_sample_indiv_plot_aux_axis, color='crimson')
+
+        total_sample_indiv_plot_xticks = (np.arange(75, (np.max(tick_times) + 25), step=25))
+        total_sample_indiv_plot.xaxis.set_tick_params(rotation=45)
+        total_sample_indiv_plot_aux_axis.set(ylabel='Probability Density')
+        total_sample_indiv_plot.set(ylabel='Number of Tektons in Sample')
+        total_sample_indiv_plot_aux_xaxis = total_sample_indiv_plot.secondary_xaxis('top')
+        total_sample_indiv_plot_aux_xaxis.xaxis.set_tick_params(rotation=45)
+        total_sample_indiv_plot_aux_xaxis.set(xticks=(np.arange(75, (np.max(tick_times)), step=25)),
+                                              xlim=(75, (np.max(tick_times))))
+        total_sample_indiv_plot_aux_xaxis_labels = np.arange(75, (np.max(tick_times)), step=25)
+        total_sample_indiv_plot_aux_xaxis.set_xticklabels(
+            minutes_list_big_step[3:(len(total_sample_indiv_plot_aux_xaxis_labels) + 3)])
+        total_sample_indiv_plot.set(title=f'Tekton Density Histogram of {p.number_to_words(trials).title()} Trials',
+                                    xticks=total_sample_indiv_plot_xticks, xlim=(75, (np.max(tick_times))))
+        total_sample_indiv_plot.locator_params(nbins=22, axis='y')
+        total_sample_indiv_plot_aux_axis.locator_params(nbins=22, axis='y')
+        total_sample_indiv_plot.set_xlabel('Time of Encounter in Ticks')
+        total_sample_indiv_plot_aux_xaxis.set_xlabel('Time of Encounter in Minutes and Seconds')
+        total_sample_indiv_plot.grid(True, color='black')
+        total_sample_indiv_plot.set_axisbelow(True)
+        return fig3
+
+    def one_anvil_hist_kde():
+        fig4 = plt.figure(4)
+        gs4 = fig4.add_gridspec(1, 1)
+        one_anvil_indiv_plot = fig4.add_subplot(gs4[0, 0])
+        with sns.axes_style(style='ticks', rc={'ytick.left': True}):
+            sns.histplot(tick_times_one_anvil, bins=bin_number_second, ax=one_anvil_indiv_plot, palette=['orange'],
+                         alpha=1,
+                         legend=False, edgecolor='k', linewidth=1)
+
+        one_anvil_indiv_plot_aux_axis = one_anvil_indiv_plot.twinx()
+        sns.kdeplot(tick_times_one_anvil, palette=['r'], ax=one_anvil_indiv_plot_aux_axis, legend=False)
+
+        one_anvil_indiv_plot.xaxis.set_tick_params(rotation=45)
+        one_anvil_indiv_plot_aux_axis.set(ylabel='Probability Density')
+        one_anvil_indiv_plot.set(ylabel='Number of Tektons in Sample')
+        one_anvil_indiv_plot_aux_xaxis = one_anvil_indiv_plot.secondary_xaxis('top')
+        one_anvil_indiv_plot_aux_xaxis.xaxis.set_tick_params(rotation=45)
+
+        one_anvil_indiv_plot_xticks = (np.arange(75, 165, step=5))
+        one_anvil_indiv_plot.set(xticks=one_anvil_indiv_plot_xticks, xlim=(75, 160),
+                                 title=f'Number of Tektons Within One Anvil in {p.number_to_words(trials).title()} Trials')
+        one_anvil_indiv_plot.locator_params(nbins=22, axis='y')
+        one_anvil_indiv_plot.set_xlabel('Time of Encounter in Ticks')
+        one_anvil_indiv_plot_aux_xaxis.set_xlabel('Time of Encounter in Minutes and Seconds')
+        one_anvil_indiv_plot_aux_axis.locator_params(nbins=22, axis='y')
+        one_anvil_indiv_plot.xaxis.set_tick_params(rotation=45)
+
+        one_anvil_indiv_plot_aux_xaxis.set(xticks=(np.arange(75, 165, step=5)), xlim=(75, 160))
+        one_anvil_indiv_plot_aux_xaxis.set_xticklabels(minutes_list[:18])
+        one_anvil_indiv_plot_aux_xaxis.xaxis.set_tick_params(rotation=45)
+        one_anvil_indiv_plot.grid(True, color='black')
+        one_anvil_indiv_plot.set_axisbelow(True)
+        return fig4
+
     cumulative_total_graph = sns.kdeplot(tick_times_df, x='tick_times', cumulative=True, common_norm=False,
                                          common_grid=True, legend=True, color='crimson', linewidth=2)
     empirical_total_graph = sns.ecdfplot(tick_times_df, x='tick_times', legend=True, color='k', linewidth=1.75)
     data_x, data_y = cumulative_total_graph.lines[0].get_data()
     yi = .99
     xi = np.interp(yi, data_y, data_x)
-    cumulative_total_graph.set(xticks=(np.arange(0, 1400, step=25)), xlim=(0, xi), yticks=(np.arange(0, 1.1, step=.1)),
+    cumulative_total_graph.set(xticks=(np.arange(0, 1400, step=25)), xlim=(0, xi),
+                               yticks=(np.arange(0, 1.1, step=.1)),
                                ylim=(0, 1), ylabel='Probability of Completing Tekton',
                                xlabel='Time of Encounter in Ticks',
                                title='Cumulative Probability of Completing Tekton')
@@ -135,13 +230,15 @@ def output_graph(results_df):
     aux_axis_cumulative = cumulative_total_graph.twiny()
     sns.kdeplot(ax=aux_axis_cumulative, bins=80)
     cumulative_total_graph.legend(labels=('Theoretical', 'Empirical'), labelcolor='black')
-    aux_axis_cumulative.set(xticks=(np.arange(0, 840, step=25)), xlim=(0, (xi * .6)), xlabel='Time of Encounter in Seconds')
+    aux_axis_cumulative.set(xticks=(np.arange(0, 840, step=25)), xlim=(0, (xi * .6)),
+                            xlabel='Time of Encounter in Seconds')
     aux_axis_cumulative.set_xticklabels(minutes_list_bigger_step, rotation=45)
     cumulative_total_graph.grid('visible', color='black')
 
     # total histogram graph
     with sns.axes_style(style='ticks', rc={'ytick.left': True}):
-        sns.histplot(tick_times, bins=bin_number, ax=total_sample_main_plot, color='orange', alpha=1, edgecolor='k', linewidth=1)
+        sns.histplot(tick_times, bins=bin_number, ax=total_sample_main_plot, color='orange', alpha=1, edgecolor='k',
+                     linewidth=1)
     total_sample_main_plot_aux_axis = total_sample_main_plot.twinx()
 
     sns.kdeplot(tick_times, ax=total_sample_main_plot_aux_axis, color='crimson')
@@ -168,7 +265,8 @@ def output_graph(results_df):
 
     # under one anvil graph
     with sns.axes_style(style='ticks', rc={'ytick.left': True}):
-        sns.histplot(tick_times_one_anvil, bins=bin_number_second, ax=one_anvil_main_plot, palette=['orange'], alpha=1,
+        sns.histplot(tick_times_one_anvil, bins=bin_number_second, ax=one_anvil_main_plot, palette=['orange'],
+                     alpha=1,
                      legend=False, edgecolor='k', linewidth=1)
 
     one_anvil_main_plot_aux_axis = one_anvil_main_plot.twinx()
@@ -196,4 +294,7 @@ def output_graph(results_df):
     one_anvil_main_plot.set_axisbelow(True)
 
     plt.subplots_adjust(wspace=.25, hspace=0, right=.93, left=0.05, top=.90, bottom=.07)
-    return fig
+    cumul_graph_img = cumul_graph()
+    one_anvil_hist_kde_img = one_anvil_hist_kde()
+    total_sample_hist_kde_img = total_sample_hist_kde()
+    return fig, cumul_graph_img, one_anvil_hist_kde_img, total_sample_hist_kde_img
