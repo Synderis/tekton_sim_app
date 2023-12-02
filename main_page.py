@@ -39,7 +39,7 @@ import base64
 # db = SQLAlchemy()
 # create the app
 db = SQLAlchemy()
-app = Flask(__name__, template_folder=r'templates')
+app = Flask(__name__)
 # change string to the name of your database; add path if necessary
 
 connection_url = engine.URL.create(
@@ -234,4 +234,4 @@ def database_import():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='127.0.0.1', port=5000)
