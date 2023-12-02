@@ -24,7 +24,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
-from flask_bootstrap import Bootstrap4
 import update_sim_data
 from generate_graphs import output_graph
 from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField, widgets
@@ -40,7 +39,7 @@ import base64
 # db = SQLAlchemy()
 # create the app
 db = SQLAlchemy()
-app = Flask(__name__, template_folder=r'C:\Users\Dylan\PycharmProjects\home_project\myflaskproject\.venv\templates')
+app = Flask(__name__, template_folder=r'templates')
 # change string to the name of your database; add path if necessary
 
 connection_url = engine.URL.create(
@@ -67,7 +66,6 @@ app.config['SECRET_KEY'] = 'any secret string'
 
 # initialize the app with Flask-SQLAlchemy
 db.init_app(app)
-Bootstrap4(app)
 
 # NOTHING BELOW THIS LINE NEEDS TO CHANGE
 # this route will test the database connection - and nothing more

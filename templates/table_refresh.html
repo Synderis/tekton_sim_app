@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<div class="tab" style="width: 600px">
+    <button class="tab_button" onclick="activeGraph(event, 'cumulative_graph', 'cdf_descrip')">Cumulative Graph</button>
+    <button class="tab_button" onclick="activeGraph(event, 'total_sample_graph', 'total_sample_descrip')">Total Sample
+        Histogram
+    </button>
+    <button class="tab_button" onclick="activeGraph(event, 'one_anvil_graph', 'one_anvil_descrip')">One Anvil
+        Histogram
+    </button>
+    <button class="tab_button" onclick="activeGraph(event, 'plot_arr', 'grouped_description')">Show All Plots</button>
+
+</div>
+<div class="important" style="position: absolute; left:650px; top:20px; font-size:25px">Click one of the header buttons
+    to view result plots.
+</div>
+<div>
+    <button onclick="window.location.href = '{{url_for('gear')}}';" style="position: absolute; top: 5px; left: 90vw">
+        Return to Gear Selection
+    </button>
+</div>
+<div class="container">
+    <div>
+        <img src="{{ group_image }}" id="plot_arr" class="plot" style="width:100%; display:none;"/>
+        <p class="plot" style="display:none; text-align:center" id="grouped_description">Image Description</p>
+    </div>
+    <div>
+        <img src="{{ cdf_img }}" id="cumulative_graph" class="plot" style="width:100%; display:none;"/>
+        <p class="plot" style="display:none; text-align:center" id="cdf_descrip">Image Description</p>
+    </div>
+    <div>
+        <img src="{{ total_anvil_img }}" id="total_sample_graph" class="plot" style="width:100%; display:none;"/>
+        <p class="plot" style="display:none; text-align:center" id="total_sample_descrip">Image Description</p>
+    </div>
+    <div>
+        <img src="{{ one_anvil_img }}" id="one_anvil_graph" class="plot" style="width:100%; display:none;"/>
+        <p class="plot" style="display:none; text-align:center" id="one_anvil_descrip">Image Description</p>
+    </div>
+    <form onSubmit="return handleSubmit(event);">
+        <input type="number" id="hpInput" name="hpInput" style="margin-left: 5px" value="{{ hp_default }}" required/>
+        <input type="submit" value="Submit" style="margin-top:5px;"/>
+        <input type="hidden" id="prev_data" value="{{ json_data }}">
+        <div>Input an hp value to compare to the hp values that tekton returns to the anvil with.
+            <br>The default is the average hp value from all the trials.
+        </div>
+        <div id="Results"></div>
+    </form>
+</div>
+<div class="data-table">
+    <table class="result-table" style="width:100%;">
+        <caption class="important">Output Snapshot</caption>
+        {% for table in data_table %}
+        {{ table|safe }}
+        {% endfor %}
+    </table>
+</div>
+
+<script>
+    function handleSubmit(event) {
+    event.preventDefault()
+      let table = document.getElementById("Results")
+      let number = document.getElementById("hpInput").value;
+      let prev_q = document.getElementById("prev_data").value;
+      const body = {hpInput: number, query_params: prev_q}
+
+      var options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+
+      };
+
+      fetch("/database", options)
+        .then((response) => response.text())
+        .then((text) => {
+         console.log("data:", text);
+        let new_tbl = text
+        table.innerHTML = new_tbl;
+
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      return false;
+    }
+
+
+</script>
+<script>
+    function hrefFunction(){
+                windows.location.href = "http://127.0.0.1:5000/gear";
+            }
+</script>
+<script>
+    function activeGraph(evt, graph_name, text_description){
+        var i, graph_img, tab_buttons;
+        graph_img = document.getElementsByClassName("plot");
+        for (i = 0; i < graph_img.length; i++) {
+            graph_img[i].style.display = 'none';
+        }
+        tab_buttons = document.getElementsByClassName("tab_button");
+        for (i = 0; i < tab_buttons.length; i++) {
+            tab_buttons[i].className = tab_buttons[i].className.replace(" active", "");
+        }
+        document.getElementById(graph_name).style.display='';
+        document.getElementById(text_description).style.display='';
+        evt.currentTarget.className += " active";
+    }
+</script>
+<style type="text/css">
+    .tab {
+      width: 30%;
+      overflow: hidden;
+      border: 1px solid #ccc;
+      background-color: #f1f1f1;
+    }
+
+    /* Style the buttons that are used to open the tab content */
+    .tab button {
+      background-color: inherit;
+      float: left;
+      outline-style: 1px solid;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+      background-color: #ddd;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+      background-color: #ccc;
+    }
+    .form {
+    margin: inline
+
+      /* An explicit background is required here, as it's actually transparent by default, and we
+           don't want to see the shadow element behind */
+      background: var(--background-color);
+    }
+        .important { color:  #ff0000; }
+         caption {
+      display: inline;
+      text-align: center;
+      font-size: 30px;
+    }
+    .container {
+    width: 95vw;
+    height: 77vh;
+
+    display: flex;
+    flex-direction: row;
+    }
+    .container .data-table {
+    }
+    .container :nth-child(n) {
+    padding:4px
+    }
+</style>
+
+{% endblock %}
