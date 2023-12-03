@@ -34,6 +34,9 @@
         <div class="form__group">
             {{ form_q.book_of_water.label }}{{ form_q.book_of_water(class="form-control") }}
         </div>
+        <div class="form__group">
+            {{ form_q.short_lure.label }}{{ form_q.short_lure(class="form-control") }}
+        </div>
     </div>
     <br>
     {{ form_q.ring.label }}
@@ -44,7 +47,7 @@
 <style>
 .form {
   margin: 0 auto;
-  max-width: 30rem;
+  width: 90vw;
   border: var(--border);
   font-size: 1.2rem;
 
@@ -63,6 +66,7 @@
 
 @media screen and (min-width: 30em) {
   .form__container {
+    width: 90vw;
     padding-left: 2.5rem;
   }
 }

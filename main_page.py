@@ -100,6 +100,7 @@ class TektonResults(db.Model):
     veng_camp = db.Column('veng_camp', db.Boolean)
     vuln = db.Column('vuln', db.Boolean)
     book_of_water = db.Column('book_of_water', db.Boolean)
+    short_lure = db.Column('short_lure', db.Boolean)
 
 
 class QueryForm(FlaskForm):
@@ -114,6 +115,7 @@ class QueryForm(FlaskForm):
     veng_camp = BooleanField('Veng Camp', default=False)
     vuln = BooleanField('Vuln', default=False)
     book_of_water = BooleanField('Book of Water', default=False)
+    short_lure = BooleanField('Shorter Lure', default=False)
     submit = SubmitField("Submit")
 
 

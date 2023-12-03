@@ -49,7 +49,7 @@ def map_parameters(**parameters):
 
 def run_script():
     class NewParams:
-        def __init__(self, ring, cm, inq, feros, tort, fang, five_tick_only, preveng, veng_camp, vuln, book_of_water):
+        def __init__(self, ring, cm, inq, feros, tort, fang, five_tick_only, preveng, veng_camp, vuln, book_of_water, short_lure):
             self.ring = ring
             self.cm = cm
             self.inq = inq
@@ -61,6 +61,7 @@ def run_script():
             self.veng_camp = veng_camp
             self.vuln = vuln
             self.book_of_water = book_of_water
+            self.short_lure = short_lure
 
 
     # These are the metrics that we will be measuring EACH trial and they will reset to initial conditions at the start
@@ -572,7 +573,11 @@ def run_script():
             else:
                 four_tick_hit(6, False)
                 five_tick_hit(1, False, False)
-            four_tick_hit(2, False)
+            if trial_parameters.short_lure:
+                four_tick_hit(1, False)
+            else:
+                four_tick_hit(2, False)
+
             five_tick_hit(1, False, False)
         else:
             five_tick_hit(4, True, False)
