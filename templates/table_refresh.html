@@ -17,32 +17,32 @@
     to view result plots.
 </div>
 <div>
-    <button onclick="window.location.href = '{{url_for('gear')}}';" style="position: absolute; top: 5px; left: 90vw">
+    <button onclick="window.location.href = '{{url_for('gear')}}';" style="position: absolute; top: 10px; left: 90vw">
         Return to Gear Selection
     </button>
 </div>
 <div class="container">
     <div>
-        <img src="{{ group_image }}" id="plot_arr" class="plot" style="width:100%; display:none;"/>
-        <p class="plot" style="display:none; text-align:center" id="grouped_description">Image Description</p>
+        <img src="{{ group_image }}" id="plot_arr" class="plot" style="display:none;"/>
+        <p class="plot" style="display:none;" id="grouped_description">This shows all the current plots with a table summarizing the results.</p>
     </div>
     <div>
-        <img src="{{ cdf_img }}" id="cumulative_graph" class="plot" style="width:100%; display:none;"/>
-        <p class="plot" style="display:none; text-align:center" id="cdf_descrip">Image Description</p>
+        <img src="{{ cdf_img }}" id="cumulative_graph" class="plot" style="display:none;"/>
+        <p class="plot" style="display:none;" id="cdf_descrip">This graph displays the cumulative probability of killing Tekton over time.</p>
     </div>
     <div>
-        <img src="{{ total_anvil_img }}" id="total_sample_graph" class="plot" style="width:100%; display:none;"/>
-        <p class="plot" style="display:none; text-align:center" id="total_sample_descrip">Image Description</p>
+        <img src="{{ total_anvil_img }}" id="total_sample_graph" class="plot" style="display:none;"/>
+        <p class="plot" style="display:none;" id="total_sample_descrip">This graph displays a histogram with a kernel density estimate for the total trials.</p>
     </div>
     <div>
-        <img src="{{ one_anvil_img }}" id="one_anvil_graph" class="plot" style="width:100%; display:none;"/>
-        <p class="plot" style="display:none; text-align:center" id="one_anvil_descrip">Image Description</p>
+        <img src="{{ one_anvil_img }}" id="one_anvil_graph" class="plot" style="display:none;"/>
+        <p class="plot" style="display:none;" id="one_anvil_descrip">This graph displays a histogram with a kernel density estimate for just one anvil results.</p>
     </div>
     <form onSubmit="return handleSubmit(event);">
-        <input type="number" id="hpInput" name="hpInput" style="margin-left: 5px" value="{{ hp_default }}" required/>
-        <input type="submit" value="Submit" style="margin-top:5px;"/>
+        <input type="number" id="hpInput" name="hpInput" style="margin-left: 5px;" value="{{ hp_default }}" required/>
+        <input type="submit" value="Submit" style="margin-top:5px; margin-left: 1px;"/>
         <input type="hidden" id="prev_data" value="{{ json_data }}">
-        <div>Input an hp value to compare to the hp values that tekton returns to the anvil with.
+        <div style="margin-top:5px; margin-left: 5px;">Input an hp value to compare to the hp values that tekton returns to the anvil with.
             <br>The default is the average hp value from all the trials.
         </div>
         <div id="Results"></div>
@@ -56,6 +56,7 @@
         {% endfor %}
     </table>
 </div>
+
 
 <script>
     function handleSubmit(event) {
@@ -158,10 +159,19 @@
     display: flex;
     flex-direction: row;
     }
-    .container .data-table {
+    img{
+    width:100%;
+    clip: rect(0px 0px, 5px, 0px);
+    }
+    p{
+    text-align:center;
+    margin-top: 0px;
     }
     .container :nth-child(n) {
-    padding:4px
+    padding:1px
+    }
+    .data-table {
+    margin-top:40px
     }
 </style>
 
