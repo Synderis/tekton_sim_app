@@ -39,12 +39,12 @@ import base64
 # db = SQLAlchemy()
 # create the app
 db = SQLAlchemy()
-app = Flask(__name__, template_folder=r'templates')
+app = Flask(__name__)
 # change string to the name of your database; add path if necessary
 
 connection_url = engine.URL.create(
     r"mssql+pyodbc",
-    host=r"DESKTOP-3TJHN4P\MSSQLSERVER01",
+    host=r"DESKTOP-J8L86O2",
     database=r"tekton_sim_data",
     query={
         r"driver": "ODBC Driver 17 for SQL Server",
@@ -100,39 +100,62 @@ class TektonResults(db.Model):
     veng_camp = db.Column('veng_camp', db.Boolean)
     vuln = db.Column('vuln', db.Boolean)
     book_of_water = db.Column('book_of_water', db.Boolean)
+    short_lure = db.Column('short_lure', db.Boolean)
 
 
-class QueryForm(FlaskForm):
-    ring = SelectField('Select ring', choices=[('ultor_ring', 'Ultor Ring'), ('brim', 'Brim'), ('b_ring', 'B ring'), ('lightbearer', 'Lightbearer'), (None, 'None')])
-    cm = BooleanField('CM', default=False)
-    inq = BooleanField('Inq', default=False)
-    feros = BooleanField('Feros', default=False)
-    tort = BooleanField('Tort', default=False)
-    fang = BooleanField('Fang', default=False)
-    five_tick_only = BooleanField('Five Tick Only', default=False)
-    preveng = BooleanField('Pre Veng', default=False)
-    veng_camp = BooleanField('Veng Camp', default=False)
-    vuln = BooleanField('Vuln', default=False)
-    book_of_water = BooleanField('Book of Water', default=False)
-    submit = SubmitField("Submit")
+# class QueryForm(FlaskForm):
+#     ring = SelectField('Select ring', choices=[('ultor_ring', 'Ultor Ring'), ('brim', 'Brim'), ('b_ring', 'B ring'), ('lightbearer', 'Lightbearer'), (None, 'None')])
+#     cm = BooleanField('CM', default=False)
+#     inq = BooleanField('Inq', default=False)
+#     feros = BooleanField('Feros', default=False)
+#     tort = BooleanField('Tort', default=False)
+#     fang = BooleanField('Fang', default=False)
+#     five_tick_only = BooleanField('Five Tick Only', default=False)
+#     preveng = BooleanField('Pre Veng', default=False)
+#     veng_camp = BooleanField('Veng Camp', default=False)
+#     vuln = BooleanField('Vuln', default=False)
+#     book_of_water = BooleanField('Book of Water', default=False)
+#     short_lure = BooleanField('Shorter Lure', default=False)
+#     submit = SubmitField("Submit")
 
 
 @app.route("/gear", methods=['GET', 'POST',])
 def gear():
-    form_q = QueryForm()
-    return render_template(r"gear.html", form_q=form_q)
+    # form_q = QueryForm()
+    # return render_template(r"gear.html", form_q=form_q)
+    return render_template(r"gear.html")
 
 
 @app.route('/database', methods=['GET', 'POST',])
 def database():
-    form_q = QueryForm()
-    if form_q.data.get('ring') is not None:
-        query_dict = form_q.data
-        if 'submit' and 'csrf_token' in query_dict:
-            query_dict.pop('submit')
-            query_dict.pop('csrf_token')
-        print(query_dict)
-        session['query_params'] = query_dict
+    query_dict = {'ring': 'ultor_ring', 'cm': True, 'inq': True, 'feros': True, 'tort': True, 'fang': False,
+                  'five_tick_only': False, 'preveng': True, 'veng_camp': False, 'vuln': False, 'book_of_water': False,
+                  'short_lure': False}
+    # query_dict = {'ring': 'ultor_ring', 'cm': True, 'inq': True, 'feros': True, 'tort': True, 'fang': False,
+    #               'five_tick_only': False, 'preveng': True, 'veng_camp': False, 'vuln': False, 'book_of_water': False}
+
+    if not request.form.to_dict():
+        temp_dict = session['query_params'].copy()
+    else:
+        temp_dict = request.form.to_dict()
+    for key in query_dict.keys():
+        if key in temp_dict.keys():
+            print(key, temp_dict[key])
+            query_dict[key] = True
+        else:
+            query_dict[key] = False
+        if key == 'ring':
+            query_dict[key] = temp_dict[key]
+    # form_q = QueryForm()
+    # if form_q.data.get('ring') is not None:
+    #     query_dict = form_q.data
+    #     if 'submit' and 'csrf_token' in query_dict:
+    #         query_dict.pop('submit')
+    #         query_dict.pop('csrf_token')
+    #     print(query_dict)
+    # query_dict.pop('short_lure')
+    query_dict1 = query_dict
+    session['query_params'] = query_dict1
     try:
         print(style.BLUE + "{0}".format(request.json) + style.RESET)
         flag = True
@@ -148,6 +171,7 @@ def database():
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
         if len(df) == 0:
+            # print(**session['query_params'])
             update_sim_data.map_parameters(**session['query_params'])
             while len(df) == 0:
                 time.sleep(1)
@@ -234,4 +258,4 @@ def database_import():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='127.0.0.1', port=5000)
