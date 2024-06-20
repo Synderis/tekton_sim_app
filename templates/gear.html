@@ -2,49 +2,93 @@
 
 {% block title %}Index{% endblock %}
 {% block head %}
-<form method="post" action="/database" class="form-inline">
+<form id="gear_form" method="post" action="/database" class="form-inline">
     <div class="form__container">
-        <div class="form__group">
-            {{ form_q.cm.label }}{{ form_q.cm(class="form-control", checked=True) }}
+        <div style="font-size:45px; font-weight: bold">Gear and Scenario Selection</div>
+        <label class="form__group">CM
+            <input type="checkbox" checked="checked" name="cm">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Inq
+            <input type="checkbox" checked="checked" name="inq">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Feros
+            <input type="checkbox" checked="checked" name="feros">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Tort
+            <input type="checkbox" checked="checked" name="tort">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Fang
+            <input type="checkbox" name="fang">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Five Tick Only
+            <input type="checkbox" name="five_tick_only">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Preveng
+            <input type="checkbox" checked="checked" name="preveng">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Veng Camp
+            <input type="checkbox" name="veng_camp">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Vuln
+            <input type="checkbox" checked="checked" name="vuln">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Book of Water
+            <input type="checkbox" name="book_of_water">
+            <span class="checkmark"></span>
+        </label>
+        <label class="form__group">Short Lure
+            <input type="checkbox" name="short_lure">
+            <span class="checkmark"></span>
+        </label><br>
+        <div>
+            <label class="form__group">
+                <label style="font-weight: bold">Ring Selection</label><br>
+                <input type="radio" id="None" name="ring" value="Select Ring" checked>
+                <label for="None">None</label><br>
+                <span class="radio_dot" id="r1"></span>
+                <input type="radio" id="ultor_ring" name="ring" value="ultor_ring">
+                <label for="ultor_ring">Ultor Ring</label>
+                <span class="radio_dot" id="r2"></span>
+                <input type="radio" id="brim" name="ring" value="brim">
+                <label for="brim">Brim</label>
+                <span class="radio_dot" id="r3"></span>
+                <input type="radio" id="b_ring" name="ring" value="b_ring">
+                <label for="b_ring">B Ring</label>
+                <span class="radio_dot" id="r4"></span>
+                <input type="radio" id="lightbearer" name="ring" value="lightbearer">
+                <label for="lightbearer">Lightbearer</label>
+                <span class="radio_dot" id="r5"></span>
+            </label><br>
+            <button type="submit">Submit</button>
         </div>
-        <div class="form__group">
-            {{ form_q.inq.label }}{{ form_q.inq(class="form-control", checked=True) }}
-        </div>
-        <div class="form__group">
-            {{ form_q.feros.label }}{{ form_q.feros(class="form-control", checked=True) }}
-        </div>
-        <div class="form__group">
-            {{ form_q.tort.label }}{{ form_q.tort(class="form-control", checked=True) }}
-        </div>
-        <div class="form__group">
-            {{ form_q.fang.label }}{{ form_q.fang(class="form-control") }}
-        </div>
-        <div class="form__group">
-            {{ form_q.five_tick_only.label }}{{ form_q.five_tick_only(class="form-control") }}
-        </div>
-        <div class="form__group">
-            {{ form_q.preveng.label }}{{ form_q.preveng(class="form-control", checked=True) }}
-        </div>
-        <div class="form__group">
-            {{ form_q.veng_camp.label }}{{ form_q.veng_camp(class="form-control") }}
-        </div>
-        <div class="form__group">
-            {{ form_q.vuln.label }}{{ form_q.vuln(class="form-control", checked=True) }}
-        </div>
-        <div class="form__group">
-            {{ form_q.book_of_water.label }}{{ form_q.book_of_water(class="form-control") }}
-        </div>
+
     </div>
+
     <br>
-    {{ form_q.ring.label }}
-    {{ form_q.ring(class="form-control") }}
-    {{ form_q.submit(class="btn btn-primary") }}
+
     <br>
 </form>
+<script type="text/javascript">
+    $('#gear_form').submit(function() {
+        var $checkboxes = $('#gear_form').find('input[type="checkbox"]');// Select all checkboxes
+        $checkboxes.filter(':checked').val(1);// Set value to 1 for checked checkboxes
+        $checkboxes.not(':checked').val(0);// Set value to 0 for unchecked checkboxes
+        $checkboxes.prop('checked', true);// Change all checkboxes to "checked" so all of them are submitted to server
+    });
+</script>
 <style>
 .form {
   margin: 0 auto;
-  max-width: 30rem;
+  width: 90vw;
   border: var(--border);
   font-size: 1.2rem;
 
@@ -57,26 +101,111 @@
    size increases */
 @media screen and (min-width: 24.75em) {
   .form__container :nth-child(n){
-    padding: 5px;
   }
 }
 
+
+
 @media screen and (min-width: 30em) {
   .form__container {
+    width: 90vw;
     padding-left: 2.5rem;
   }
 }
 .form__group {
   /* Surrounds the label and input fields, placing the label above the input */
-  float: left;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1.5rem;
+
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 5px solid black;
+  border-radius: 10px;
+  background: gray;
 }
+
+input[type="checkbox"]:checked, input[type="radio"]:checked {
+    width: 20px;
+    height: 20px;
+    accent-color: crimson;
+    border: 2px solid #bcbcbc;
+}
+
+input[type="checkbox"]:hover, input[type="radio"]:focus {
+    width: 20px;
+    height: 20px;
+    accent-color: red;
+    border: 2px solid #bcbcbc;
+}
+
+<!--.form__group input {-->
+<!--  position: absolute;-->
+<!--  opacity: 0;-->
+<!--  cursor: pointer;-->
+<!--  height: 0;-->
+<!--  width: 0;-->
+<!--}-->
+
+<!--/* Create a custom checkbox */-->
+<!--.checkmark {-->
+<!--  position: absolute;-->
+<!--  top: 0;-->
+<!--  left: 0;-->
+<!--  height: 26px;-->
+<!--  width: 25px;-->
+<!--  border-radius: 5px;-->
+<!--  background-color: #eee;-->
+<!--}-->
+
+
+
+<!--/* On mouse-over, add a grey background color */-->
+<!--.form__group:hover input ~ .checkmark {-->
+<!--  background-color: #ccc;-->
+<!--}-->
+
+<!--/* When the checkbox is checked, add a blue background */-->
+<!--.form__group input:checked ~ .checkmark {-->
+<!--  background-color: #ca2d2d;-->
+<!--}-->
+
+<!--/* Create the checkmark/indicator (hidden when not checked) */-->
+<!--.checkmark:after {-->
+<!--  content: "";-->
+<!--  position: absolute;-->
+<!--  display: none;-->
+<!--}-->
+
+<!--/* Show the checkmark when checked */-->
+<!--.form__group input:checked ~ .checkmark:after {-->
+<!--  display: block;-->
+<!--}-->
+
+
+
+<!--/* Style the checkmark/indicator */-->
+<!--.form__group .checkmark:after {-->
+<!--  left: 9px;-->
+<!--  top: 5px;-->
+<!--  width: 5px;-->
+<!--  height: 10px;-->
+<!--  border: solid white;-->
+<!--  border-width: 0 3px 3px 0;-->
+<!--  -webkit-transform: rotate(45deg);-->
+<!--  -ms-transform: rotate(45deg);-->
+<!--  transform: rotate(45deg);-->
+<!--}-->
 
 .form__label {
   display: inline;
   margin-bottom: 0.5rem;
 }
+
+
 </style>
 {% endblock %}
