@@ -49,7 +49,7 @@ def map_parameters(**parameters):
 
 def run_script():
     class NewParams:
-        def __init__(self, ring, cm, inq, feros, tort, fang, five_tick_only, preveng, veng_camp, vuln, book_of_water):
+        def __init__(self, ring, cm, inq, feros, tort, fang, five_tick_only, preveng, veng_camp, vuln, book_of_water, short_lure):
             self.ring = ring
             self.cm = cm
             self.inq = inq
@@ -61,6 +61,7 @@ def run_script():
             self.veng_camp = veng_camp
             self.vuln = vuln
             self.book_of_water = book_of_water
+            self.short_lure = short_lure
 
 
     # These are the metrics that we will be measuring EACH trial and they will reset to initial conditions at the start
@@ -572,7 +573,11 @@ def run_script():
             else:
                 four_tick_hit(6, False)
                 five_tick_hit(1, False, False)
-            four_tick_hit(2, False)
+            if trial_parameters.short_lure:
+                four_tick_hit(1, False)
+            else:
+                four_tick_hit(2, False)
+
             five_tick_hit(1, False, False)
         else:
             five_tick_hit(4, True, False)
@@ -623,7 +628,7 @@ def run_script():
 
         print(results_df)
         import_df = results_df.copy()
-        connection_string = r"Driver={ODBC Driver 17 for SQL Server}; Server=DESKTOP-3TJHN4P\MSSQLSERVER01; Database=tekton_sim_data; Trusted_Connection=yes;"
+        connection_string = r"Driver={ODBC Driver 17 for SQL Server}; Server=DESKTOP-J8L86O2; Database=tekton_sim_data; Trusted_Connection=yes;"
         connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
         engine = create_engine(connection_url)
         conn_id = engine.connect()
