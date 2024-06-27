@@ -140,11 +140,20 @@ def database():
         temp_dict = request.form.to_dict()
     for key in query_dict.keys():
         if key in temp_dict.keys():
+            print(key, temp_dict[key])
             query_dict[key] = True
         else:
             query_dict[key] = False
         if key == 'ring':
             query_dict[key] = temp_dict[key]
+    # form_q = QueryForm()
+    # if form_q.data.get('ring') is not None:
+    #     query_dict = form_q.data
+    #     if 'submit' and 'csrf_token' in query_dict:
+    #         query_dict.pop('submit')
+    #         query_dict.pop('csrf_token')
+    #     print(query_dict)
+    # query_dict.pop('short_lure')
     query_dict1 = query_dict
     session['query_params'] = query_dict1
     try:
