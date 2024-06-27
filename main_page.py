@@ -103,22 +103,6 @@ class TektonResults(db.Model):
     short_lure = db.Column('short_lure', db.Boolean)
 
 
-# class QueryForm(FlaskForm):
-#     ring = SelectField('Select ring', choices=[('ultor_ring', 'Ultor Ring'), ('brim', 'Brim'), ('b_ring', 'B ring'), ('lightbearer', 'Lightbearer'), (None, 'None')])
-#     cm = BooleanField('CM', default=False)
-#     inq = BooleanField('Inq', default=False)
-#     feros = BooleanField('Feros', default=False)
-#     tort = BooleanField('Tort', default=False)
-#     fang = BooleanField('Fang', default=False)
-#     five_tick_only = BooleanField('Five Tick Only', default=False)
-#     preveng = BooleanField('Pre Veng', default=False)
-#     veng_camp = BooleanField('Veng Camp', default=False)
-#     vuln = BooleanField('Vuln', default=False)
-#     book_of_water = BooleanField('Book of Water', default=False)
-#     short_lure = BooleanField('Shorter Lure', default=False)
-#     submit = SubmitField("Submit")
-
-
 @app.route("/gear", methods=['GET', 'POST',])
 def gear():
     # form_q = QueryForm()
