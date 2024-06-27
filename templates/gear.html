@@ -4,7 +4,7 @@
 {% block head %}
 <form id="gear_form" method="post" action="/database" class="form-inline">
     <div class="form__container">
-        <div style="font-size:45px; font-weight: bold">Gear and Scenario Selection</div>
+        <div style="font-size:45px; font-weight: bold; color: white">Gear and Scenario Selection</div>
         <label class="form__group">CM
             <input type="checkbox" checked="checked" name="cm">
             <span class="checkmark"></span>
@@ -51,24 +51,20 @@
         </label><br>
         <div>
             <label class="form__group">
-                <label style="font-weight: bold">Ring Selection</label><br>
-                <input type="radio" id="None" name="ring" value="Select Ring" checked>
-                <label for="None">None</label><br>
-                <span class="radio_dot" id="r1"></span>
-                <input type="radio" id="ultor_ring" name="ring" value="ultor_ring">
-                <label for="ultor_ring">Ultor Ring</label>
-                <span class="radio_dot" id="r2"></span>
-                <input type="radio" id="brim" name="ring" value="brim">
-                <label for="brim">Brim</label>
-                <span class="radio_dot" id="r3"></span>
-                <input type="radio" id="b_ring" name="ring" value="b_ring">
-                <label for="b_ring">B Ring</label>
-                <span class="radio_dot" id="r4"></span>
-                <input type="radio" id="lightbearer" name="ring" value="lightbearer">
-                <label for="lightbearer">Lightbearer</label>
-                <span class="radio_dot" id="r5"></span>
+                <span style="font-weight: bold">Ring Selection</span><br>
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="5" value="1" class="slider" list="markers" id="slider_id">
+                </div>
+                <datalist id="markers">
+                    <option value="1">None</option>
+                    <option value="2">Ultor ring</option>
+                    <option value="3">Brim</option>
+                    <option value="4">B Ring</option>
+                    <option value="5">Lightbearer</option>
+                </datalist>
             </label><br>
-            <button type="submit">Submit</button>
+            <input type="hidden" name="ring" id="ring">
+            <button type="submit" class="submit_button">Submit</button>
         </div>
 
     </div>
@@ -77,12 +73,20 @@
 
     <br>
 </form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
-    $('#gear_form').submit(function() {
-        var $checkboxes = $('#gear_form').find('input[type="checkbox"]');// Select all checkboxes
-        $checkboxes.filter(':checked').val(1);// Set value to 1 for checked checkboxes
-        $checkboxes.not(':checked').val(0);// Set value to 0 for unchecked checkboxes
-        $checkboxes.prop('checked', true);// Change all checkboxes to "checked" so all of them are submitted to server
+    $('#gear_form').submit(function(event) {
+        event.preventDefault(); // Prevent default form submission
+        var rangeslider = $('#slider_id').val(); // Get slider value
+        var rings = ["Select Ring", "ultor_ring", "brim", "b_ring", "lightbearer"];
+        var selectedRing = rings[rangeslider - 1]; // Adjust index for 0-based array
+        $('#ring').val(selectedRing); // Set hidden input value
+
+        var $checkboxes = $('#gear_form').find('input[type="checkbox"]'); // Select all checkboxes
+        $checkboxes.filter(':checked').val(1); // Set value to 1 for checked checkboxes
+        $checkboxes.not(':checked').val(0); // Set value to 0 for unchecked checkboxes
+
+        $('#gear_form')[0].submit(); // Submit the form
     });
 </script>
 <style>
@@ -105,7 +109,6 @@
 }
 
 
-
 @media screen and (min-width: 30em) {
   .form__container {
     width: 90vw;
@@ -120,86 +123,101 @@
   padding-left: 35px;
   cursor: pointer;
   font-size: 22px;
+  color: black;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  border: 5px solid black;
+  border: 5px solid #0d1117;
   border-radius: 10px;
   background: gray;
 }
 
-input[type="checkbox"]:checked, input[type="radio"]:checked {
+input[type="checkbox"]:checked {
     width: 20px;
     height: 20px;
     accent-color: crimson;
     border: 2px solid #bcbcbc;
 }
 
-input[type="checkbox"]:hover, input[type="radio"]:focus {
+input[type="checkbox"]:hover {
     width: 20px;
     height: 20px;
     accent-color: red;
     border: 2px solid #bcbcbc;
 }
 
-<!--.form__group input {-->
-<!--  position: absolute;-->
-<!--  opacity: 0;-->
-<!--  cursor: pointer;-->
-<!--  height: 0;-->
-<!--  width: 0;-->
-<!--}-->
+.submit_button {
+  background-color: crimson;
+  border: none;
+  color: black;
+  padding: 16px 32px;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+  text-shadow: 1px 1px 2px gray;
+}
 
-<!--/* Create a custom checkbox */-->
-<!--.checkmark {-->
-<!--  position: absolute;-->
-<!--  top: 0;-->
-<!--  left: 0;-->
-<!--  height: 26px;-->
-<!--  width: 25px;-->
-<!--  border-radius: 5px;-->
-<!--  background-color: #eee;-->
-<!--}-->
+.submit_button:hover {
+  background-color: red;
+}
 
+.slidecontainer {
+  width: 70%;
+  padding-left: 20px;
+  padding-top: 5px;
+}
 
+.slider {
+  -webkit-appearance: none;
+  width: 70%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  border-radius: 10px;
+}
 
-<!--/* On mouse-over, add a grey background color */-->
-<!--.form__group:hover input ~ .checkmark {-->
-<!--  background-color: #ccc;-->
-<!--}-->
+.slider:hover {
+  opacity: 1;
+}
 
-<!--/* When the checkbox is checked, add a blue background */-->
-<!--.form__group input:checked ~ .checkmark {-->
-<!--  background-color: #ca2d2d;-->
-<!--}-->
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: crimson;
+  cursor: pointer;
+  border-radius: 10px;
+}
 
-<!--/* Create the checkmark/indicator (hidden when not checked) */-->
-<!--.checkmark:after {-->
-<!--  content: "";-->
-<!--  position: absolute;-->
-<!--  display: none;-->
-<!--}-->
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: crimson;
+  cursor: pointer;
+}
 
-<!--/* Show the checkmark when checked */-->
-<!--.form__group input:checked ~ .checkmark:after {-->
-<!--  display: block;-->
-<!--}-->
+datalist {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  writing-mode: horizontal-tb;
+  width: 670px;
+}
 
+option {
+  padding: 0;
+}
 
-
-<!--/* Style the checkmark/indicator */-->
-<!--.form__group .checkmark:after {-->
-<!--  left: 9px;-->
-<!--  top: 5px;-->
-<!--  width: 5px;-->
-<!--  height: 10px;-->
-<!--  border: solid white;-->
-<!--  border-width: 0 3px 3px 0;-->
-<!--  -webkit-transform: rotate(45deg);-->
-<!--  -ms-transform: rotate(45deg);-->
-<!--  transform: rotate(45deg);-->
-<!--}-->
+input[type="range"] {
+  width: 600px;
+  margin: 0;
+}
 
 .form__label {
   display: inline;
