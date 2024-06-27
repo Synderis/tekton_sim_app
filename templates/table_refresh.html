@@ -13,39 +13,39 @@
     <button class="tab_button" onclick="activeGraph(event, 'plot_arr', 'grouped_description')">Show All Plots</button>
 
 </div>
-<div class="important" style="position: absolute; left:650px; top:20px; font-size:25px">Click one of the header buttons
+<div class="important" style="position: absolute; left:650px; top:20px; font-size:25px; font-weight: Bold;">Click one of the header buttons
     to view result plots.
 </div>
 <div>
-    <button onclick="window.location.href = '{{url_for('gear')}}';" style="position: absolute; top: 5px; left: 90vw">
+    <button class="submit_button" onclick="window.location.href = '{{url_for('gear')}}';" style="position: absolute; top: 10px; left: 90vw">
         Return to Gear Selection
     </button>
 </div>
 <div class="container">
     <div>
-        <img src="{{ group_image }}" id="plot_arr" class="plot" style="width:100%; display:none;"/>
-        <p class="plot" style="display:none; text-align:center" id="grouped_description">Image Description</p>
+        <img src="{{ group_image }}" id="plot_arr" class="plot" style="display:none;"/>
+        <p class="plot" style="display:none;" id="grouped_description">This shows all the current plots with a table summarizing the results.</p>
     </div>
     <div>
-        <img src="{{ cdf_img }}" id="cumulative_graph" class="plot" style="width:100%; display:none;"/>
-        <p class="plot" style="display:none; text-align:center" id="cdf_descrip">Image Description</p>
+        <img src="{{ cdf_img }}" id="cumulative_graph" class="plot" style="display:none;"/>
+        <p class="plot" style="display:none;" id="cdf_descrip">This graph displays the cumulative probability of killing Tekton over time.</p>
     </div>
     <div>
-        <img src="{{ total_anvil_img }}" id="total_sample_graph" class="plot" style="width:100%; display:none;"/>
-        <p class="plot" style="display:none; text-align:center" id="total_sample_descrip">Image Description</p>
+        <img src="{{ total_anvil_img }}" id="total_sample_graph" class="plot" style="display:none;"/>
+        <p class="plot" style="display:none;" id="total_sample_descrip">This graph displays a histogram with a kernel density estimate for the total trials.</p>
     </div>
     <div>
-        <img src="{{ one_anvil_img }}" id="one_anvil_graph" class="plot" style="width:100%; display:none;"/>
-        <p class="plot" style="display:none; text-align:center" id="one_anvil_descrip">Image Description</p>
+        <img src="{{ one_anvil_img }}" id="one_anvil_graph" class="plot" style="display:none;"/>
+        <p class="plot" style="display:none;" id="one_anvil_descrip">This graph displays a histogram with a kernel density estimate for just one anvil results.</p>
     </div>
     <form onSubmit="return handleSubmit(event);">
-        <input type="number" id="hpInput" name="hpInput" style="margin-left: 5px" value="{{ hp_default }}" required/>
-        <input type="submit" value="Submit" style="margin-top:5px;"/>
+        <input type="number" id="hpInput" name="hpInput" style="margin-left: 5px;" value="{{ hp_default }}" required/>
+        <input type="submit" value="Submit" class="submit_button" style="margin-top:5px; margin-left: 1px;"/>
         <input type="hidden" id="prev_data" value="{{ json_data }}">
-        <div>Input an hp value to compare to the hp values that tekton returns to the anvil with.
+        <div style="margin-top:5px; margin-left: 5px; color: white">Input an hp value to compare to the hp values that tekton returns to the anvil with.
             <br>The default is the average hp value from all the trials.
         </div>
-        <div id="Results"></div>
+        <div id="Results" style="color: white"></div>
     </form>
 </div>
 <div class="data-table">
@@ -56,6 +56,7 @@
         {% endfor %}
     </table>
 </div>
+
 
 <script>
     function handleSubmit(event) {
@@ -106,6 +107,8 @@
         for (i = 0; i < tab_buttons.length; i++) {
             tab_buttons[i].className = tab_buttons[i].className.replace(" active", "");
         }
+        console.log(graph_name)
+        console.log(text_description)
         document.getElementById(graph_name).style.display='';
         document.getElementById(text_description).style.display='';
         evt.currentTarget.className += " active";
@@ -113,30 +116,32 @@
 </script>
 <style type="text/css">
     .tab {
-      width: 30%;
+<!--      width: 30%;-->
       overflow: hidden;
-      border: 1px solid #ccc;
-      background-color: #f1f1f1;
+<!--      border: 1px solid #ccc;-->
     }
 
     /* Style the buttons that are used to open the tab content */
     .tab button {
-      background-color: inherit;
+      background-color: crimson;
+      color: black;
       float: left;
       outline-style: 1px solid;
       cursor: pointer;
+      border-radius: 10px;
       padding: 14px 16px;
+      text-shadow: 1px 1px 2px gray;
       transition: 0.3s;
     }
 
     /* Change background color of buttons on hover */
     .tab button:hover {
-      background-color: #ddd;
+      background-color: red;
     }
 
     /* Create an active/current tablink class */
     .tab button.active {
-      background-color: #ccc;
+      background-color: red;
     }
     .form {
     margin: inline
@@ -158,10 +163,37 @@
     display: flex;
     flex-direction: row;
     }
-    .container .data-table {
+    img{
+    width:100%;
+    clip: rect(0px 0px, 5px, 0px);
+    }
+    p{
+    text-align:center;
+    margin-top: 0px;
+    color: white;
+    font-weight: bold;
     }
     .container :nth-child(n) {
-    padding:4px
+    padding:1px
+    }
+    .data-table {
+    margin-top:40px;
+    color: white
+    }
+    .submit_button {
+      background-color: crimson;
+      border: none;
+      color: black;
+      padding: 8px 16px;
+      text-decoration: none;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      text-shadow: 1px 1px 2px gray;
+    }
+
+    .submit_button:hover {
+      background-color: red;
     }
 </style>
 
