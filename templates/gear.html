@@ -67,13 +67,11 @@
             <button type="submit" class="submit_button">Submit</button>
             <div class="loader" style="display: none" id="load_screen"></div>
         </div>
-
     </div>
-
     <br>
-
     <br>
 </form>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
     $('#gear_form').submit(function(event) {
@@ -234,11 +232,15 @@ input[type="range"] {
 .loader {
   border: 16px solid #f3f3f3;
   border-radius: 50%;
-  border-top: 16px solid #3498db;
+  border-top: 16px solid crimson;
   width: 120px;
   height: 120px;
   -webkit-animation: spin 2s linear infinite; /* Safari */
   animation: spin 2s linear infinite;
+  position: fixed;
+  z-index: 1;
+  left: 45%;
+  top: 50%;
 }
     
 .form__label {
