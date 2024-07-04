@@ -4,7 +4,6 @@ selection_time = datetime.now()
 import math
 import statistics
 import random
-import tkinter as tk
 import inflect
 import matplotlib.pyplot as plt
 import numpy as np
