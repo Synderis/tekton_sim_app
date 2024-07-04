@@ -8,11 +8,12 @@ from sqlalchemy import URL
 from flask import render_template, Flask, request, redirect, url_for, Response, jsonify, session
 from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
+import numpy as np
 from sqlalchemy import text
 from flask_wtf import FlaskForm
 from flask_restful import Resource, Api
 from scipy.stats import norm
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import classification_report
@@ -191,41 +192,59 @@ def database():
         new_tbl = {'Data Set': ['Above', 'Below', 'One Anvils Above', 'One Anvils Below', 'HP Selected'], 'Data Value': [f'{total_above}%', f'{total_below}%', f'{total_above_subset}%', f'{total_below_subset}%', hp_val]}
         new_tbl = pd.DataFrame(data=new_tbl)
         return new_tbl.to_html(index=False)
-        #
-    #
-    #         x = str('working')
 
-        # print(df.describe())
-        # df = df[['tick_times', 'anvil_count', 'hammer_count', 'hp_after_pre_anvil']]
-        # array = df.values
-        # X = array[:, 0:3]
-        # y = array[:, 3]
-        # X_train, X_validation, Y_train, Y_validation = train_test_split(X, y, test_size=0.20, random_state=1)
-        # ...
-        # # Spot Check Algorithms
-        # models = []
-        # models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr')))
-        # models.append(('LDA', LinearDiscriminantAnalysis()))
-        # models.append(('KNN', KNeighborsClassifier()))
-        # models.append(('CART', DecisionTreeClassifier()))
-        # models.append(('NB', GaussianNB()))
-        # models.append(('SVM', SVC(gamma='auto')))
-        # # evaluate each model in turn
-        # results = []
-        # names = []
-        # for name, model in models:
-        #     kfold = StratifiedKFold(n_splits=2, random_state=1, shuffle=True)
-        #     cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring=None)
-        #     results.append(cv_results)
-        #     names.append(name)
-        #     print('%s: %f (%f)' % (name, cv_results.mean(), cv_results.std()))
-        # model = SVC(gamma='auto')
-        # model.fit(X_train, Y_train)
-        # predictions = model.predict(X_validation)
-        # print(accuracy_score(Y_validation, predictions))
-        # print(confusion_matrix(Y_validation, predictions))
-        # print(classification_report(Y_validation, predictions))
 
+@app.route('/model', methods=['GET', 'POST',])
+def ml_model():
+    # df = request.form.to_dict()
+    # df = df[['tick_times', 'hammer_count', 'hp_after_pre_anvil', 'ring', 'cm', 'inq', 'feros', 'tort', 'fang',
+    #               'five_tick_only', 'preveng', 'veng_camp', 'vuln', 'book_of_water',
+    #               'short_lure']]
+    data_n = session_obj.query(TektonResults).limit(30000)
+    # print(data_n.statement)
+    df = pd.read_sql(data_n.statement, con=db_engine)
+    df = df.drop(columns=['ring', 'short_lure'])
+    X = df.drop(columns=['tick_times']).values
+    y = df['tick_times'].values
+    print('here')
+    X_train, X_validation, y_train, y_validation = train_test_split(X, y, test_size=0.20, random_state=1)
+
+    # Spot Check Algorithms
+    models = []
+    models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr')))
+    models.append(('LDA', LinearDiscriminantAnalysis()))
+    models.append(('KNN', KNeighborsClassifier()))
+    models.append(('CART', DecisionTreeClassifier()))
+    models.append(('NB', GaussianNB()))
+    models.append(('SVM', SVC(gamma='auto')))
+
+    # Evaluate each model in turn
+    results = []
+    names = []
+    print('here now')
+    for name, model in models:
+        kfold = KFold(n_splits=2, random_state=1, shuffle=True)
+        cv_results = cross_val_score(model, X_train, y_train, cv=kfold, scoring='accuracy')
+        results.append(cv_results)
+        names.append(name)
+        print(f'{name}: {cv_results.mean()} ({cv_results.std()})')
+
+    model = SVC(gamma='auto')
+    model.fit(X_train, y_train)
+    # predictions = model.predict(X_validation)
+
+    # print(accuracy_score(y_validation, predictions))
+    # print(confusion_matrix(y_validation, predictions))
+    # print(classification_report(y_validation, predictions))
+
+    # Hard-coded sample for prediction
+    hard_coded_sample = np.array(
+        [[1, 230, True, True, True, True, True, False, False, True, False, False, False, False]])
+
+    predicted_tick_times = model.predict(hard_coded_sample)
+
+    print(f"Hard-coded sample features: {hard_coded_sample}")
+    print(f"Predicted tick_times: {predicted_tick_times[0]}")
 
 @app.route('/database/update', methods=['GET', 'POST',])
 def database_import():
