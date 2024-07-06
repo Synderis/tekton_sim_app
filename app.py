@@ -3,6 +3,8 @@ import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
 import matplotlib
 from matplotlib import pyplot as plt
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
 from sqlalchemy.sql import text
 from sqlalchemy import URL
 from flask import render_template, Flask, request, redirect, url_for, Response, jsonify, session
@@ -13,13 +15,14 @@ from sqlalchemy import text
 from flask_wtf import FlaskForm
 from flask_restful import Resource, Api
 from scipy.stats import norm
-from sklearn.model_selection import train_test_split, KFold
+from sklearn.model_selection import train_test_split, KFold, GridSearchCV, TimeSeriesSplit
 from sklearn.model_selection import cross_val_score
+from sklearn.svm import SVR
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, r2_score, mean_squared_error
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -146,6 +149,7 @@ def database():
         # print(data_n.statement)
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
+        print(df.columns)
         if len(df) == 0:
             # print(**session['query_params'])
             update_sim_data.map_parameters(**session['query_params'])
@@ -196,55 +200,93 @@ def database():
 
 @app.route('/model', methods=['GET', 'POST',])
 def ml_model():
-    # df = request.form.to_dict()
-    # df = df[['tick_times', 'hammer_count', 'hp_after_pre_anvil', 'ring', 'cm', 'inq', 'feros', 'tort', 'fang',
-    #               'five_tick_only', 'preveng', 'veng_camp', 'vuln', 'book_of_water',
-    #               'short_lure']]
-    data_n = session_obj.query(TektonResults).limit(30000)
-    # print(data_n.statement)
+    data_n = session_obj.query(TektonResults).limit(40000)
     df = pd.read_sql(data_n.statement, con=db_engine)
-    df = df.drop(columns=['ring', 'short_lure'])
+
+    # Drop unused columns
+    df = df.drop(columns=['ring', 'short_lure', 'anvil_count', 'ID'])
+
+    # Prepare features and target
     X = df.drop(columns=['tick_times']).values
     y = df['tick_times'].values
-    print('here')
-    X_train, X_validation, y_train, y_validation = train_test_split(X, y, test_size=0.20, random_state=1)
 
-    # Spot Check Algorithms
-    models = []
-    models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr')))
-    models.append(('LDA', LinearDiscriminantAnalysis()))
-    models.append(('KNN', KNeighborsClassifier()))
-    models.append(('CART', DecisionTreeClassifier()))
-    models.append(('NB', GaussianNB()))
-    models.append(('SVM', SVC(gamma='auto')))
+    # Split the dataset into training and validation sets
+    X_train, X_validation, y_train, y_validation = train_test_split(X, y, test_size=0.3, random_state=1)
 
-    # Evaluate each model in turn
-    results = []
-    names = []
-    print('here now')
-    for name, model in models:
-        kfold = KFold(n_splits=2, random_state=1, shuffle=True)
-        cv_results = cross_val_score(model, X_train, y_train, cv=kfold, scoring='accuracy')
-        results.append(cv_results)
-        names.append(name)
-        print(f'{name}: {cv_results.mean()} ({cv_results.std()})')
+    # Normalize features (standardization)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_validation = scaler.transform(X_validation)
 
-    model = SVC(gamma='auto')
+    # Define the best parameters obtained from GridSearchCV
+    best_params = {
+        'bootstrap': True,
+        'max_depth': 10,
+        'max_features': 'sqrt',
+        'min_samples_leaf': 1,
+        'min_samples_split': 5,
+        'n_estimators': 100
+    }
+
+    # Train the final model using the best parameters
+    model = RandomForestRegressor(**best_params, random_state=1)
     model.fit(X_train, y_train)
-    # predictions = model.predict(X_validation)
 
-    # print(accuracy_score(y_validation, predictions))
-    # print(confusion_matrix(y_validation, predictions))
-    # print(classification_report(y_validation, predictions))
+    # Make predictions with the best model
+    predictions = model.predict(X_validation)
+
+    # Evaluate the model
+    mse = mean_squared_error(y_validation, predictions)
+    r2 = r2_score(y_validation, predictions)
+    print("Mean squared error: %.2f" % mse)
+    print("Coefficient of determination: %.2f" % r2)
+
+    # Plot actual vs. predicted values
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(y_validation, predictions)
+    # plt.plot([min(y_validation), max(y_validation)], [min(y_validation), max(y_validation)], color='red', lw=2)
+    # plt.title('Actual vs Predicted tick_times')
+    # plt.xlabel('Actual tick_times')
+    # plt.ylabel('Predicted tick_times')
+    # plt.show()
+
+    # Plot residuals
+    # residuals = y_validation - predictions
+    # plt.figure(figsize=(10, 6))
+    # sns.histplot(residuals, bins=30, kde=True)
+    # plt.title('Residuals of Predictions')
+    # plt.xlabel('Residual')
+    # plt.ylabel('Frequency')
+    # plt.show()
+
+    # Feature Importance
+    # feature_importances = model.feature_importances_
+    # features = df.drop(columns=['tick_times']).columns
+    # importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
+    # importance_df = importance_df.sort_values(by='Importance', ascending=False)
+    #
+    # plt.figure(figsize=(10, 6))
+    # sns.barplot(x='Importance', y='Feature', data=importance_df)
+    # plt.title('Feature Importance')
+    # plt.show()
 
     # Hard-coded sample for prediction
     hard_coded_sample = np.array(
-        [[1, 230, True, True, True, True, True, False, False, True, False, False, False, False]])
+        [[1, 230, True, True, True, True, False, False, True, False, False, False]])
 
+    if hard_coded_sample.shape[1] != X.shape[1]:
+        print("Error: Hard-coded sample has an incorrect number of features.")
+        return
+
+    # Normalize the hard-coded sample
+    hard_coded_sample = scaler.transform(hard_coded_sample)
+
+    # Predict using the hard-coded sample
     predicted_tick_times = model.predict(hard_coded_sample)
 
     print(f"Hard-coded sample features: {hard_coded_sample}")
     print(f"Predicted tick_times: {predicted_tick_times[0]}")
+
 
 @app.route('/database/update', methods=['GET', 'POST',])
 def database_import():
