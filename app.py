@@ -12,8 +12,6 @@ from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 import numpy as np
 from sqlalchemy import text
-from flask_wtf import FlaskForm
-from flask_restful import Resource, Api
 from scipy.stats import norm
 from sklearn.model_selection import train_test_split, KFold, GridSearchCV, TimeSeriesSplit
 from sklearn.model_selection import cross_val_score
@@ -30,8 +28,6 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 import update_sim_data
 from generate_graphs import output_graph
-from wtforms import IntegerField, TextAreaField, SubmitField, RadioField, SelectField, BooleanField, widgets
-from wtforms.widgets import Input, SubmitInput
 from sqlalchemy.ext.declarative import declarative_base
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from urllib import parse
@@ -39,8 +35,6 @@ import io
 import base64
 
 
-# this variable, db, will be used for all SQLAlchemy commands
-# db = SQLAlchemy()
 # create the app
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -70,9 +64,6 @@ app.config['SECRET_KEY'] = 'any secret string'
 
 # initialize the app with Flask-SQLAlchemy
 db.init_app(app)
-
-# NOTHING BELOW THIS LINE NEEDS TO CHANGE
-# this route will test the database connection - and nothing more
 
 
 @app.route('/')
@@ -109,8 +100,6 @@ class TektonResults(db.Model):
 
 @app.route("/gear", methods=['GET', 'POST',])
 def gear():
-    # form_q = QueryForm()
-    # return render_template(r"gear.html", form_q=form_q)
     return render_template(r"gear.html")
 
 
@@ -200,6 +189,27 @@ def database():
 
 @app.route('/model', methods=['GET', 'POST',])
 def ml_model():
+    query_dict = {'hammer_count': 0, 'hp_after_anvil': 0, 'ring': 'ultor_ring', 'cm': True, 'inq': True, 'feros': True, 'tort': True, 'fang': False,
+                  'five_tick_only': False, 'preveng': True, 'veng_camp': False, 'vuln': False, 'book_of_water': False,
+                  'short_lure': False}
+    # query_dict = {'ring': 'ultor_ring', 'cm': True, 'inq': True, 'feros': True, 'tort': True, 'fang': False,
+    #               'five_tick_only': False, 'preveng': True, 'veng_camp': False, 'vuln': False, 'book_of_water': False}
+    print(request.form.to_dict())
+    if not request.form.to_dict():
+        temp_dict = session['query_params'].copy()
+    else:
+        temp_dict = request.form.to_dict()
+    for key in query_dict.keys():
+        if key in temp_dict.keys():
+            query_dict[key] = True
+        else:
+            query_dict[key] = False
+        if key in ['ring', 'hammer_count', 'hp_after_anvil']:
+            query_dict[key] = temp_dict[key]
+    query_dict1 = query_dict
+    session['query_params'] = query_dict1
+    print(query_dict1)
+
     data_n = session_obj.query(TektonResults).limit(40000)
     df = pd.read_sql(data_n.statement, con=db_engine)
 
@@ -270,22 +280,30 @@ def ml_model():
     # plt.title('Feature Importance')
     # plt.show()
 
-    # Hard-coded sample for prediction
-    hard_coded_sample = np.array(
-        [[1, 230, True, True, True, True, False, False, True, False, False, False]])
+    query_dict1.pop('ring')
+    test_sample = []
+    for each in query_dict1.values():
+        test_sample.append(each)
+    l1, l2 = test_sample[0], test_sample[1]
+    test_sample[0], test_sample[1] = int(l2), int(l1)
+    test_sample = [test_sample[:12]]
+    test_sample = np.array(
+        test_sample)
+    print(test_sample)
 
-    if hard_coded_sample.shape[1] != X.shape[1]:
+    if test_sample.shape[1] != X.shape[1]:
         print("Error: Hard-coded sample has an incorrect number of features.")
         return
 
     # Normalize the hard-coded sample
-    hard_coded_sample = scaler.transform(hard_coded_sample)
+    test_sample = scaler.transform(test_sample)
 
     # Predict using the hard-coded sample
-    predicted_tick_times = model.predict(hard_coded_sample)
+    predicted_tick_times = model.predict(test_sample)
 
-    print(f"Hard-coded sample features: {hard_coded_sample}")
+    print(f"Test sample features: {test_sample}")
     print(f"Predicted tick_times: {predicted_tick_times[0]}")
+    return render_template(r"ml_model.html",  predicted_time=predicted_tick_times[0], mse=mse, r2=r2)
 
 
 @app.route('/database/update', methods=['GET', 'POST',])

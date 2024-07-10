@@ -1,254 +1,54 @@
 {% extends "base.html" %}
-
 {% block title %}Index{% endblock %}
 {% block head %}
-<form id="gear_form" method="post" action="/database" class="form-inline">
-    <div class="form__container">
-        <div style="font-size:45px; font-weight: bold; color: white">Gear and Scenario Selection</div>
-        <label class="form__group">CM
-            <input type="checkbox" checked="checked" name="cm">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Inq
-            <input type="checkbox" checked="checked" name="inq">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Feros
-            <input type="checkbox" checked="checked" name="feros">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Tort
-            <input type="checkbox" checked="checked" name="tort">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Fang
-            <input type="checkbox" name="fang">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Five Tick Only
-            <input type="checkbox" name="five_tick_only">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Preveng
-            <input type="checkbox" checked="checked" name="preveng">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Veng Camp
-            <input type="checkbox" name="veng_camp">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Vuln
-            <input type="checkbox" checked="checked" name="vuln">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Book of Water
-            <input type="checkbox" name="book_of_water">
-            <span class="checkmark"></span>
-        </label>
-        <label class="form__group">Short Lure
-            <input type="checkbox" name="short_lure">
-            <span class="checkmark"></span>
-        </label><br>
-        <div>
-            <label class="form__group">
-                <span style="font-weight: bold">Ring Selection</span><br>
-                <div class="slidecontainer">
-                    <input type="range" min="1" max="5" value="1" class="slider" list="markers" id="slider_id">
-                </div>
-                <datalist id="markers">
-                    <option value="1">None</option>
-                    <option value="2">Ultor ring</option>
-                    <option value="3">Brim</option>
-                    <option value="4">B Ring</option>
-                    <option value="5">Lightbearer</option>
-                </datalist>
-            </label><br>
-            <input type="hidden" name="ring" id="ring">
-            <button type="submit" class="submit_button">Submit</button>
-            <div class="loader" style="display: none" id="load_screen"></div>
-        </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<div class="container">
+    <div>
+        <button class="submit_button" onclick="window.location.href = '{{url_for('gear')}}';" style="position: absolute; top: 10px; left: 90vw">
+            Return to Gear Selection
+        </button>
     </div>
-    <br>
-    <br>
-</form>
+    <div class="results">
+        <div>Predicted Time in Ticks: {{ predicted_time }}</div>
+        <div>Mean Squared Error: {{ mse }}</div>
+        <div>Coefficient of determination: {{ r2 }}</div>
+    </div>
+</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script type="text/javascript">
-    $('#gear_form').submit(function(event) {
-        event.preventDefault(); // Prevent default form submission
-        document.getElementById("load_screen").style.display = "";
-        var rangeslider = $('#slider_id').val(); // Get slider value
-        var rings = ["Select Ring", "ultor_ring", "brim", "b_ring", "lightbearer"];
-        var selectedRing = rings[rangeslider - 1]; // Adjust index for 0-based array
-        $('#ring').val(selectedRing); // Set hidden input value
-
-        var $checkboxes = $('#gear_form').find('input[type="checkbox"]'); // Select all checkboxes
-        $checkboxes.filter(':checked').val(1); // Set value to 1 for checked checkboxes
-        $checkboxes.not(':checked').val(0); // Set value to 0 for unchecked checkboxes
-
-        $('#gear_form')[0].submit(); // Submit the form
-    });
+<script>
+    function hrefFunction(){
+                windows.location.href = "http://127.0.0.1:5000/gear";
+            }
 </script>
-<style>
-.form {
-  margin: 0 auto;
-  width: 90vw;
-  border: var(--border);
-  font-size: 1.2rem;
+<style type="text/css">
+    .container {
+    display: flex;
+    flex-direction: row;
+    }
 
-  /* An explicit background is required here, as it's actually transparent by default, and we
-       don't want to see the shadow element behind */
-  background: var(--background-color);
-}
+    .results {
+    width: 85vw;
+    border: 5px solid #0d1117;
+    border-radius: 10px;
+    background: gray;
+    }
 
-/* The following media queries allow for more padding inside the form as the window
-   size increases */
-@media screen and (min-width: 24.75em) {
-  .form__container :nth-child(n){
-  }
-}
+    .submit_button {
+      background-color: orange;
+      outline-style: 1px solid;
+      color: black;
+      padding: 8px 16px;
+      text-decoration: none;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      text-shadow: 1px 1px 2px gray;
+      transition: 0.3s;
+    }
 
-
-@media screen and (min-width: 30em) {
-  .form__container {
-    width: 90vw;
-    padding-left: 2.5rem;
-  }
-}
-.form__group {
-  /* Surrounds the label and input fields, placing the label above the input */
-
-  display: block;
-  position: relative;
-  padding-left: 35px;
-  cursor: pointer;
-  font-size: 22px;
-  color: black;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  border: 5px solid #0d1117;
-  border-radius: 10px;
-  background: gray;
-}
-
-input[type="checkbox"]:checked {
-    width: 20px;
-    height: 20px;
-    accent-color: crimson;
-    border: 2px solid #bcbcbc;
-}
-
-input[type="checkbox"]:hover {
-    width: 20px;
-    height: 20px;
-    accent-color: red;
-    border: 2px solid #bcbcbc;
-}
-
-.submit_button {
-  background-color: crimson;
-  outline-style: 1px solid;
-  color: black;
-  padding: 16px 32px;
-  text-decoration: none;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 10px;
-  text-shadow: 1px 1px 2px gray;
-  transition: 0.3s;
-}
-
-.submit_button:hover {
-  background-color: red;
-}
-
-.slidecontainer {
-  width: 70%;
-  padding-left: 20px;
-  padding-top: 5px;
-}
-
-.slider {
-  -webkit-appearance: none;
-  width: 70%;
-  height: 25px;
-  background: #d3d3d3;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
-  border-radius: 10px;
-}
-
-.slider:hover {
-  opacity: 1;
-}
-
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  background: crimson;
-  cursor: pointer;
-  border-radius: 10px;
-}
-
-.slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  background: crimson;
-  cursor: pointer;
-}
-
-datalist {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  writing-mode: horizontal-tb;
-  width: 670px;
-}
-
-option {
-  padding: 0;
-}
-
-input[type="range"] {
-  width: 600px;
-  margin: 0;
-}
-
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loader {
-  border: 16px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 16px solid crimson;
-  width: 120px;
-  height: 120px;
-  -webkit-animation: spin 2s linear infinite; /* Safari */
-  animation: spin 2s linear infinite;
-  position: fixed;
-  z-index: 1;
-  left: 45%;
-  top: 50%;
-}
-    
-.form__label {
-  display: inline;
-  margin-bottom: 0.5rem;
-}
-
-
+    .submit_button:hover {
+      background-color: darkorange;
+    }
 </style>
+
 {% endblock %}

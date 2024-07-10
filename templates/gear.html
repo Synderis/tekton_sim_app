@@ -2,6 +2,10 @@
 
 {% block title %}Index{% endblock %}
 {% block head %}
+<div class="tab_selector">
+    <button type="button" class="page" id="ml_selector" style="width: 50%">Ml Selector</button>
+    <button type="button" class="page" id="std_selector" style="width: 50%">Std Selector</button>
+</div>
 <form id="gear_form" method="post" action="/database" class="form-inline">
     <div class="form__container">
         <div style="font-size:45px; font-weight: bold; color: white">Gear and Scenario Selection</div>
@@ -64,6 +68,16 @@
                 </datalist>
             </label><br>
             <input type="hidden" name="ring" id="ring">
+            <div class="hidden_boxes" id="hidden_inputs" style="display: none">
+                <div style="margin: 5px">
+                    <label for="hammer_count" id="hammer_count_label">Hammer Count: </label>
+                    <input class="ml_input" type="text" name="hammer_count" id="hammer_count">
+                </div>
+                <div style="margin: 5px">
+                    <label for="hp_after_anvil" id="hp_after_anvil_label">Hp After Pre Anvil: </label>
+                    <input class="ml_input" type="text" name="hp_after_anvil" id="hp_after_anvil">
+                </div>
+            </div>
             <button type="submit" class="submit_button">Submit</button>
             <div class="loader" style="display: none" id="load_screen"></div>
         </div>
@@ -74,6 +88,56 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
+    $("#ml_selector").on("click", function () {
+        $('#gear_form').attr('action', '/model');
+        $('#hidden_inputs').show()
+        $(":checkbox:checked").css("accent-color", "orange");
+        $(":checkbox:checked").hover(function() {
+            $(this).css("accent-color","darkorange")
+          }).mouseout(function(){
+              $(this).css({"accent-color":"orange",});
+          });
+        $(":button").css("background-color", "orange");
+        $(":button")
+        .hover(function() {
+            $(this).css("background-color","darkorange")
+          }).mouseout(function(){
+              $(this).css({"background-color":"orange",});
+          });
+        $(":submit").css("background-color", "orange");
+        $(":submit")
+        .hover(function() {
+            $(this).css("background-color","darkorange")
+          }).mouseout(function(){
+              $(this).css({"background-color":"orange",});
+          });
+    });
+
+    $("#std_selector").on("click", function () {
+        $('#gear_form').attr('action', '/database');
+        $('#hidden_inputs').hide()
+        $(":checkbox:checked").css("accent-color", "red");
+        $(":checkbox:checked").hover(function() {
+            $(this).css("accent-color","crimson")
+          }).mouseout(function(){
+              $(this).css({"accent-color":"red",});
+          });
+        $(":button").css("background-color", "crimson");
+        $(":button")
+        .hover(function() {
+            $(this).css("background-color","red")
+          }).mouseout(function(){
+              $(this).css({"background-color":"crimson",});
+          });
+        $(":submit").css("background-color", "crimson");
+        $(":submit")
+        .hover(function() {
+            $(this).css("background-color","red")
+          }).mouseout(function(){
+              $(this).css({"background-color":"crimson",});
+          });
+    });
+
     $('#gear_form').submit(function(event) {
         event.preventDefault(); // Prevent default form submission
         document.getElementById("load_screen").style.display = "";
@@ -133,6 +197,21 @@
   background: gray;
 }
 
+.hidden_boxes {
+  border: 5px solid #0d1117;
+  border-radius: 10px;
+  background: gray;
+}
+
+input[type="text"] {
+  width: 20%;
+  padding: 12px 20px;
+  margin: 5px 0;
+  box-sizing: border-box;
+  border: 2px solid orange;
+  border-radius: 4px;
+}
+
 input[type="checkbox"]:checked {
     width: 20px;
     height: 20px;
@@ -145,6 +224,29 @@ input[type="checkbox"]:hover {
     height: 20px;
     accent-color: red;
     border: 2px solid #bcbcbc;
+}
+
+.tab_selector {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.page {
+  background-color: crimson;
+  outline-style: 1px solid;
+  color: black;
+  padding: 16px;
+  display: block;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+  text-shadow: 1px 1px 2px gray;
+  transition: 0.3s;
+}
+
+.page:hover {
+  background-color: red;
 }
 
 .submit_button {
