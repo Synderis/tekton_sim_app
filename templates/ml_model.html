@@ -8,6 +8,10 @@
             Return to Gear Selection
         </button>
     </div>
+    <div>
+        <img src="{{ ml_graph }}" id="ml_plot" class="plot"/>
+        <p class="plot" id="grouped_description"></p>
+    </div>
     <div class="results">
         <div>Predicted Time in Ticks: {{ predicted_time }}</div>
         <div>Mean Squared Error: {{ mse }}</div>
@@ -27,7 +31,8 @@
     }
 
     .results {
-    width: 85vw;
+    width: 35vw;
+    padding: 5px;
     border: 5px solid #0d1117;
     border-radius: 10px;
     background: gray;

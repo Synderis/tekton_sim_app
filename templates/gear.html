@@ -3,8 +3,8 @@
 {% block title %}Index{% endblock %}
 {% block head %}
 <div class="tab_selector">
-    <button type="button" class="page" id="ml_selector" style="width: 50%">Ml Selector</button>
-    <button type="button" class="page" id="std_selector" style="width: 50%">Std Selector</button>
+    <button type="button" class="page" id="ml_selector" style="width: 50%">Machine Learning Predictor</button>
+    <button type="button" class="page" id="std_selector" style="width: 50%">Statistical Predictor</button>
 </div>
 <form id="gear_form" method="post" action="/database" class="form-inline">
     <div class="form__container">
@@ -91,6 +91,7 @@
     $("#ml_selector").on("click", function () {
         $('#gear_form').attr('action', '/model');
         $('#hidden_inputs').show()
+        $("#load_screen").css("border-top", "16px solid orange");
         $(":checkbox:checked").css("accent-color", "orange");
         $(":checkbox:checked").hover(function() {
             $(this).css("accent-color","darkorange")
@@ -116,6 +117,7 @@
     $("#std_selector").on("click", function () {
         $('#gear_form').attr('action', '/database');
         $('#hidden_inputs').hide()
+        $("#load_screen").css("border-top", "16px solid crimson");
         $(":checkbox:checked").css("accent-color", "red");
         $(":checkbox:checked").hover(function() {
             $(this).css("accent-color","crimson")
@@ -293,7 +295,7 @@ input[type="checkbox"]:hover {
   appearance: none;
   width: 25px;
   height: 25px;
-  background: crimson;
+  background: black;
   cursor: pointer;
   border-radius: 10px;
 }
@@ -301,7 +303,7 @@ input[type="checkbox"]:hover {
 .slider::-moz-range-thumb {
   width: 25px;
   height: 25px;
-  background: crimson;
+  background: black;
   cursor: pointer;
 }
 

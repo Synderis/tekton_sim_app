@@ -5,32 +5,16 @@ import matplotlib
 from matplotlib import pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
-from sqlalchemy.sql import text
-from sqlalchemy import URL
 from flask import render_template, Flask, request, redirect, url_for, Response, jsonify, session
 from sqlalchemy import create_engine, MetaData, engine, select
 from sqlalchemy.orm import sessionmaker
 import numpy as np
-from sqlalchemy import text
-from scipy.stats import norm
 from sklearn.model_selection import train_test_split, KFold, GridSearchCV, TimeSeriesSplit
-from sklearn.model_selection import cross_val_score
-from sklearn.svm import SVR
-from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import classification_report, r2_score, mean_squared_error
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
 import update_sim_data
 from generate_graphs import output_graph
-from sqlalchemy.ext.declarative import declarative_base
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from urllib import parse
+from matplotlib.ticker import FuncFormatter, MaxNLocator
 import io
 import base64
 
@@ -215,6 +199,7 @@ def ml_model():
 
     # Drop unused columns
     df = df.drop(columns=['ring', 'short_lure', 'anvil_count', 'ID'])
+    # df = df.drop(columns=['short_lure', 'anvil_count', 'ID'])
 
     # Prepare features and target
     X = df.drop(columns=['tick_times']).values
@@ -250,14 +235,62 @@ def ml_model():
     r2 = r2_score(y_validation, predictions)
     print("Mean squared error: %.2f" % mse)
     print("Coefficient of determination: %.2f" % r2)
-
+    matplotlib.use('agg')
     # Plot actual vs. predicted values
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(y_validation, predictions)
-    # plt.plot([min(y_validation), max(y_validation)], [min(y_validation), max(y_validation)], color='red', lw=2)
-    # plt.title('Actual vs Predicted tick_times')
-    # plt.xlabel('Actual tick_times')
-    # plt.ylabel('Predicted tick_times')
+
+    def format_func(value, tick_number):
+        minutes = int(value // 60)
+        seconds = int(value % 60)
+        return f'{minutes}:{seconds:02}'
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    # Primary plot
+    ax1.scatter(y_validation, predictions, color='orange')
+    ax1.set_facecolor('gray')
+    ax1.plot([min(y_validation), max(y_validation)], [min(y_validation), max(y_validation)], color='crimson', lw=2)
+    ax1.set_title('Actual vs Predicted Tick Times', color='orange')
+    ax1.set_xlabel('Actual Tick Times', color='orange')
+    ax1.set_ylabel('Predicted Tick Times', color='orange')
+
+    # Secondary x-axis
+    ax2 = ax1.twiny()
+    ax2.set_xlabel('Actual Tick Times in Minutes and Seconds', color='orange')
+    primary_xmin, primary_xmax = ax1.get_xlim()
+    secondary_xmin, secondary_xmax = primary_xmin * .6, primary_xmax * .6
+    ax2.set_xlim(secondary_xmin, secondary_xmax)
+    ax2.xaxis.set_major_formatter(FuncFormatter(format_func))
+
+    # Secondary y-axis
+    ax3 = ax1.twinx()
+    ax3.set_ylabel('Predicted Tick Times in Minutes and Seconds', color='orange')
+    primary_ymin, primary_ymax = ax1.get_ylim()
+    secondary_ymin, secondary_ymax = primary_ymin * .6, primary_ymax * .6
+    ax3.set_ylim(secondary_ymin, secondary_ymax)
+    ax3.yaxis.set_major_formatter(FuncFormatter(format_func))
+
+    ax1.xaxis.set_major_locator(MaxNLocator(nbins=12))
+    ax1.yaxis.set_major_locator(MaxNLocator(nbins=12))
+    ax2.xaxis.set_major_locator(MaxNLocator(nbins=12))
+    ax3.yaxis.set_major_locator(MaxNLocator(nbins=12))
+
+    ax1.grid(True, color='black')
+
+    # Change tick labels to white
+    ax1.tick_params(axis='both', colors='white')
+    ax2.tick_params(axis='both', colors='white')
+    ax3.tick_params(axis='both', colors='white')
+
+    # Save the plot to a BytesIO object
+    png_image = io.BytesIO()
+    plt.savefig(png_image, format='png', facecolor='none')
+    plt.close()
+
+    # Encode the image in base64
+    png_image_b64_string = "data:image/png;base64,"
+    png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
+
+
     # plt.show()
 
     # Plot residuals
@@ -295,15 +328,15 @@ def ml_model():
         print("Error: Hard-coded sample has an incorrect number of features.")
         return
 
-    # Normalize the hard-coded sample
+    # Normalize the test_sample
     test_sample = scaler.transform(test_sample)
 
-    # Predict using the hard-coded sample
+    # Predict using the test_sample
     predicted_tick_times = model.predict(test_sample)
 
     print(f"Test sample features: {test_sample}")
     print(f"Predicted tick_times: {predicted_tick_times[0]}")
-    return render_template(r"ml_model.html",  predicted_time=predicted_tick_times[0], mse=mse, r2=r2)
+    return render_template(r"ml_model.html",  predicted_time=predicted_tick_times[0], mse=mse, r2=r2, ml_graph=png_image_b64_string)
 
 
 @app.route('/database/update', methods=['GET', 'POST',])
