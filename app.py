@@ -123,12 +123,14 @@ def database():
         matplotlib.use('agg')
         df = pd.read_sql(data_n.statement, con=db_engine)
         print(df.columns)
-        if len(df) == 0:
+        length = len(df)
+        if length != 40000:
             # print(**session['query_params'])
             update_sim_data.map_parameters(**session['query_params'])
-            while len(df) == 0:
-                time.sleep(1)
-                df = pd.read_sql(data_n.statement, con=db_engine)
+            time.sleep(1)
+            df = pd.read_sql(data_n.statement, con=db_engine)
+            length = 40000
+        df = df[:10000]
         hp_avg = int(df['hp_after_pre_anvil'].mean())
         df_new = df.iloc[0:2].copy()
         group_plot_fig, cumul_graph_fig, one_anvil_hist_kde_fig, total_sample_hist_kde_fig = output_graph(df)

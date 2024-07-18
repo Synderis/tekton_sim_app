@@ -244,20 +244,12 @@ def run_script():
     # This damage value selection based on adjusted gear and whether the hit chance function determines a hit
     def hit_value_roll(spec_bonus, four_tick, five_tick, max_hit_modifier=1.0):
         def strength_selector():
-            if spec_bonus:
-                return loadout.dwh_str_bonus
-            elif four_tick:
-                return loadout.four_tick_str_bonus
-            elif five_tick:
-                if trial_parameters.fang:
-                    return loadout.fang_str_bonus
-                elif scythe:
-                    return loadout.scy_str_bonus
-            else:
-                raise ValueError("Error in strength selector function")
+            strength_mapper = {spec_bonus: loadout.dwh_str_bonus, four_tick: loadout.four_tick_str_bonus,
+                               five_tick: loadout.fang_str_bonus}
+            if scythe:
+                strength_mapper[five_tick] = loadout.scy_str_bonus
+            return strength_mapper[True]
 
-
-        damage_selection = 0
         if spec_bonus:
             max_hit = int(
                 int(0.5 + effective_spec_strength_lvl * ((strength_selector() + 64) / 640)) * 1.5 * loadout.gear_multiplier)
@@ -289,17 +281,11 @@ def run_script():
     # Attack roll function that determines the roll that will be used in hit chance based on gear loadout and NPC stats
     def attack_roll(spec_attack, four_tick, five_tick, multiplier):
         def attack_selector():
-            if spec_attack:
-                return loadout.dwh_att_bonus
-            elif four_tick:
-                return loadout.four_tick_att_bonus
-            elif five_tick:
-                if trial_parameters.fang:
-                    return loadout.fang_att_bonus
-                elif scythe:
-                    return loadout.scy_att_bonus
-            else:
-                raise ValueError("Error in attack selector function")
+            attack_mapper = {spec_attack: loadout.dwh_att_bonus, four_tick: loadout.four_tick_att_bonus,
+                             five_tick: loadout.fang_att_bonus}
+            if scythe:
+                attack_mapper[five_tick] = loadout.scy_att_bonus
+            return attack_mapper[True]
 
         if spec_attack:
             max_attack_roll_basic = int(effective_spec_attack_lvl * (attack_selector() + 64))
@@ -318,13 +304,9 @@ def run_script():
 
     # Function that will take the attack roll and defense roll and determine hit or miss of main damage phase
     def hit_chancer(spec, four_tick, five_tick, fang_spec_hit, status):
-        attack_roll_check = 0
-        def_roll_check = defence_roll(spec, four_tick, five_tick, status)
-        if spec:
-            attack_roll_check = attack_roll(True, False, False, multiplier=1.0)
-        elif four_tick:
-            attack_roll_check = attack_roll(False, True, False, multiplier=1.0)
-        elif five_tick:
+        def_roll_check = defence_roll(five_tick, status)
+        attack_roll_check = attack_roll(spec, four_tick, five_tick, multiplier=1.0)
+        if five_tick:
             if trial_parameters.fang:
                 if fang_spec_hit:
                     attack_roll_check = attack_roll(False, False, True, multiplier=1.5)
@@ -334,8 +316,6 @@ def run_script():
                     attack_roll_check2 = attack_roll(False, False, True, multiplier=1.0)
                 roll_list = [attack_roll_check, attack_roll_check2]
                 return True if any(i > def_roll_check for i in roll_list) else False
-            else:
-                attack_roll_check = attack_roll(False, False, True, multiplier=1.0)
         return True if attack_roll_check > def_roll_check else False
 
 
@@ -378,7 +358,7 @@ def run_script():
         tekton.lower_def(int((tekton.defence * .3)))
         adjust_def_integer()
         hit_metrics.hammer_hit_count += 1
-        defence_roll(True, False, False, status)
+        defence_roll(False, status)
         if hit_chancer(True, False, False, False, status):
             damage_val = hit_value_roll(spec_bonus=True, four_tick=False, five_tick=False)
             tekton.lower_hp(damage_val)
@@ -400,7 +380,7 @@ def run_script():
                 hit_metrics.four_tick_hit_counter += 1
             else:
                 hit_metrics.four_tick_hit_counter += 0
-            defence_roll(False, True, False, status)
+            defence_roll(False, status)
             if hit_chancer(False, True, False, False, status):
                 damage_val = hit_value_roll(spec_bonus=False, four_tick=True, five_tick=False)
                 tekton.lower_hp(damage_val)
@@ -424,7 +404,7 @@ def run_script():
     # Function that will be called to indicate number of hits in damage phase for 5 tick weapon
     def five_tick_hit(instances, status, fang_spec_pass_var):
         for _ in range(instances):
-            defence_roll(False, False, True, status)
+            defence_roll(True, status)
             if tekton.hp > 0:
                 hit_metrics.five_tick_hit_counter += 1
             if trial_parameters.fang:
@@ -453,24 +433,17 @@ def run_script():
                     tekton.lower_hp(damage_val)
         return
 
-
     def veng_calc():
+        veng_list = [39, 44]
         if trial_parameters.cm:
-            if trial_parameters.veng_camp:
-                if tekton.veng_count < 2:
-                    return 58
-                else:
-                    return 65
+            veng_list = [58, 65]
+        if trial_parameters.veng_camp:
+            if tekton.veng_count < 2:
+                return int(veng_list[0])
             else:
-                return 65
+                return int(veng_list[1])
         else:
-            if trial_parameters.veng_camp:
-                if tekton.veng_count < 2:
-                    return 39
-                else:
-                    return 44
-            else:
-                return 44
+            return int(veng_list[1])
 
 
     def veng_applicator(pre_veng_check):
@@ -528,16 +501,14 @@ def run_script():
 
 
     def pre_anvil():
+        spec_hit(False)
+        hammer_check()
         if four_and_five:
-            spec_hit(False)
-            hammer_check()
             # hammer_count_list.append(hit_metrics.hammer_hit_count)
             for four_num, five_num in [(3, 1), (1, 2)]:
                 four_tick_hit(four_num, False)
                 five_tick_hit(five_num, False, False)
         else:
-            spec_hit(False)
-            hammer_check()
             # hammer_count_list.append(hit_metrics.hammer_hit_count)
             five_tick_hit(6, False, False)
         return
@@ -594,16 +565,13 @@ def run_script():
                 five_tick_hit(8, False, False)
         return
 
-
-    def defence_roll(spec, four_tick, five_tick, enraged):
-        test_weapon = ""
+    def defence_roll(five_tick, enraged):
+        tekton.stab_def, tekton.slash_def, tekton.crush_def = [155, 165, 105]
         if enraged:
             tekton.stab_def, tekton.slash_def, tekton.crush_def = [280, 280, 180]
-        else:
-            tekton.stab_def, tekton.slash_def, tekton.crush_def = [155, 165, 105]
-        if spec or four_tick:
-            test_weapon = loadout.static_crush_weapon
-        elif five_tick:
+
+        test_weapon = loadout.static_crush_weapon
+        if five_tick:
             test_weapon = loadout.five_tick_weapon
         def_roll_dict = {'crush': math.ceil((tekton.defence + 9) * (tekton.crush_def + 64)),
                          'stab': math.ceil((tekton.defence + 9) * (tekton.stab_def + 64)),
@@ -646,10 +614,10 @@ def run_script():
 
 
     if param_container:
-        for x in range(10000):
+        for x in range(40000):
             tekton.reset()
             hit_metrics.reset()
-            if four_and_five:
+            if trial_parameters.five_tick_only:
                 vuln_applicator()
                 pre_anvil()
                 veng_applicator(trial_parameters.preveng)
@@ -667,7 +635,7 @@ def run_script():
                     else:
                         time()
                         break
-            elif trial_parameters.five_tick_only:
+            else:
                 vuln_applicator()
                 pre_anvil()
                 veng_applicator(trial_parameters.preveng)
