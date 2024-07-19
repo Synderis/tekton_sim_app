@@ -3,8 +3,8 @@
 {% block title %}Index{% endblock %}
 {% block head %}
 <div class="tab_selector">
-    <button type="button" class="page" id="ml_selector" style="width: 50%">Machine Learning Predictor</button>
     <button type="button" class="page" id="std_selector" style="width: 50%">Statistical Predictor</button>
+    <button type="button" class="page" id="ml_selector" style="width: 50%">Machine Learning Predictor</button>
 </div>
 <form id="gear_form" method="post" action="/database" class="form-inline">
     <div class="form__container">
@@ -69,14 +69,14 @@
             </label><br>
             <input type="hidden" name="ring" id="ring">
             <div class="hidden_boxes" id="hidden_inputs" style="display: none">
-                <div style="margin: 5px">
-                    <label for="hammer_count" id="hammer_count_label">Hammer Count: </label>
-                    <input class="ml_input" type="text" name="hammer_count" id="hammer_count">
-                </div>
-                <div style="margin: 5px">
-                    <label for="hp_after_anvil" id="hp_after_anvil_label">Hp After Pre Anvil: </label>
-                    <input class="ml_input" type="text" name="hp_after_anvil" id="hp_after_anvil">
-                </div>
+              <div style="margin: 5px">
+                <label for="hp_after_anvil" id="hp_after_anvil_label">Hp After Pre Anvil: </label>
+                <input class="ml_input" type="text" name="hp_after_anvil" id="hp_after_anvil">
+            </div>
+            <div style="margin: 5px">
+                <label for="hammer_count" id="hammer_count_label">Hammer Count: </label>
+                <input class="ml_input" type="text" name="hammer_count" id="hammer_count">
+            </div>
             </div>
             <button type="submit" class="submit_button">Submit</button>
             <div class="loader" style="display: none" id="load_screen"></div>
@@ -93,7 +93,7 @@
         $('#hidden_inputs').show()
         $("#load_screen").css("border-top", "16px solid orange");
         $(":checkbox:checked").css("accent-color", "orange");
-        $(":checkbox:checked").hover(function() {
+        $(":checkbox").hover(function() {
             $(this).css("accent-color","darkorange")
           }).mouseout(function(){
               $(this).css({"accent-color":"orange",});
@@ -119,7 +119,7 @@
         $('#hidden_inputs').hide()
         $("#load_screen").css("border-top", "16px solid crimson");
         $(":checkbox:checked").css("accent-color", "red");
-        $(":checkbox:checked").hover(function() {
+        $(":checkbox").hover(function() {
             $(this).css("accent-color","crimson")
           }).mouseout(function(){
               $(this).css({"accent-color":"red",});

@@ -175,7 +175,7 @@ def database():
 
 @app.route('/model', methods=['GET', 'POST',])
 def ml_model():
-    query_dict = {'hammer_count': 0, 'hp_after_anvil': 0, 'ring': 'ultor_ring', 'cm': True, 'inq': True, 'feros': True, 'tort': True, 'fang': False,
+    query_dict = {'hp_after_anvil': 0, 'hammer_count': 0, 'ring': 'ultor_ring', 'cm': True, 'inq': True, 'feros': True, 'tort': True, 'fang': False,
                   'five_tick_only': False, 'preveng': True, 'veng_camp': False, 'vuln': False, 'book_of_water': False,
                   'short_lure': False}
     # query_dict = {'ring': 'ultor_ring', 'cm': True, 'inq': True, 'feros': True, 'tort': True, 'fang': False,
@@ -195,8 +195,11 @@ def ml_model():
     query_dict1 = query_dict
     session['query_params'] = query_dict1
     print(query_dict1)
+    s_dict = session['query_params'].copy()
+    s_dict.pop('hammer_count')
+    s_dict.pop('hp_after_anvil')
 
-    data_n = session_obj.query(TektonResults).limit(40000)
+    data_n = session_obj.query(TektonResults).filter_by(**s_dict).limit(40000)
     df = pd.read_sql(data_n.statement, con=db_engine)
 
     # Drop unused columns
