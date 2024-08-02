@@ -86,74 +86,112 @@
     <br>
 </form>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
-    $("#ml_selector").on("click", function () {
-        $('#gear_form').attr('action', '/model');
-        $('#hidden_inputs').show()
-        $("#load_screen").css("border-top", "16px solid orange");
-        $(":checkbox:checked").css("accent-color", "orange");
-        $(":checkbox").hover(function() {
-            $(this).css("accent-color","darkorange")
-          }).mouseout(function(){
-              $(this).css({"accent-color":"orange",});
+    document.getElementById("ml_selector").addEventListener("click", function() {
+      document.getElementById("gear_form").setAttribute('action', '/model');
+      document.getElementById("hidden_inputs").style.display = 'block';
+
+      document.getElementById("load_screen").style.borderTop = "16px solid orange";
+
+      var checkboxes = document.querySelectorAll(":checkbox:checked");
+      checkboxes.forEach(function(checkbox) {
+          checkbox.style.accentColor = "orange";
+      });
+
+      var allCheckboxes = document.querySelectorAll(":checkbox");
+      allCheckboxes.forEach(function(checkbox) {
+          checkbox.addEventListener("mouseover", function() {
+              this.style.accentColor = "darkorange";
           });
-        $(":button").css("background-color", "orange");
-        $(":button")
-        .hover(function() {
-            $(this).css("background-color","darkorange")
-          }).mouseout(function(){
-              $(this).css({"background-color":"orange",});
+          checkbox.addEventListener("mouseout", function() {
+              this.style.accentColor = "orange";
           });
-        $(":submit").css("background-color", "orange");
-        $(":submit")
-        .hover(function() {
-            $(this).css("background-color","darkorange")
-          }).mouseout(function(){
-              $(this).css({"background-color":"orange",});
+      });
+
+      var buttons = document.querySelectorAll(":button");
+      buttons.forEach(function(button) {
+          button.style.backgroundColor = "orange";
+          button.addEventListener("mouseover", function() {
+              this.style.backgroundColor = "darkorange";
           });
+          button.addEventListener("mouseout", function() {
+              this.style.backgroundColor = "orange";
+          });
+      });
+
+      var submits = document.querySelectorAll(":submit");
+      submits.forEach(function(submit) {
+          submit.style.backgroundColor = "orange";
+          submit.addEventListener("mouseover", function() {
+              this.style.backgroundColor = "darkorange";
+          });
+          submit.addEventListener("mouseout", function() {
+              this.style.backgroundColor = "orange";
+          });
+      });
+  });
+
+
+    document.getElementById("std_selector").addEventListener("click", function() {
+      document.getElementById("gear_form").setAttribute('action', '/database');
+      document.getElementById("hidden_inputs").style.display = 'none';
+
+      document.getElementById("load_screen").style.borderTop = "16px solid crimson";
+
+      var checkedCheckboxes = document.querySelectorAll(":checkbox:checked");
+      checkedCheckboxes.forEach(function(checkbox) {
+          checkbox.style.accentColor = "red";
+      });
+
+      var allCheckboxes = document.querySelectorAll(":checkbox");
+      allCheckboxes.forEach(function(checkbox) {
+          checkbox.addEventListener("mouseover", function() {
+              this.style.accentColor = "crimson";
+          });
+          checkbox.addEventListener("mouseout", function() {
+              this.style.accentColor = "red";
+          });
+      });
+
+      var buttons = document.querySelectorAll(":button");
+      buttons.forEach(function(button) {
+          button.style.backgroundColor = "crimson";
+          button.addEventListener("mouseover", function() {
+              this.style.backgroundColor = "red";
+          });
+          button.addEventListener("mouseout", function() {
+              this.style.backgroundColor = "crimson";
+          });
+      });
+
+      var submits = document.querySelectorAll(":submit");
+      submits.forEach(function(submit) {
+          submit.style.backgroundColor = "crimson";
+          submit.addEventListener("mouseover", function() {
+              this.style.backgroundColor = "red";
+          });
+          submit.addEventListener("mouseout", function() {
+              this.style.backgroundColor = "crimson";
+          });
+      });
+  });
+    document.getElementById("gear_form").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent default form submission
+    document.getElementById("load_screen").style.display = "";
+
+    var rangeslider = document.getElementById("slider_id").value; // Get slider value
+    var rings = ["Select Ring", "ultor_ring", "brim", "b_ring", "lightbearer"];
+    var selectedRing = rings[rangeslider - 1]; // Adjust index for 0-based array
+    document.getElementById("ring").value = selectedRing; // Set hidden input value
+
+    var checkboxes = document.querySelectorAll('#gear_form input[type="checkbox"]'); // Select all checkboxes
+    checkboxes.forEach(function(checkbox) {
+        checkbox.value = checkbox.checked ? 1 : 0; // Set value to 1 for checked checkboxes and 0 for unchecked checkboxes
     });
 
-    $("#std_selector").on("click", function () {
-        $('#gear_form').attr('action', '/database');
-        $('#hidden_inputs').hide()
-        $("#load_screen").css("border-top", "16px solid crimson");
-        $(":checkbox:checked").css("accent-color", "red");
-        $(":checkbox").hover(function() {
-            $(this).css("accent-color","crimson")
-          }).mouseout(function(){
-              $(this).css({"accent-color":"red",});
-          });
-        $(":button").css("background-color", "crimson");
-        $(":button")
-        .hover(function() {
-            $(this).css("background-color","red")
-          }).mouseout(function(){
-              $(this).css({"background-color":"crimson",});
-          });
-        $(":submit").css("background-color", "crimson");
-        $(":submit")
-        .hover(function() {
-            $(this).css("background-color","red")
-          }).mouseout(function(){
-              $(this).css({"background-color":"crimson",});
-          });
-    });
+    document.getElementById("gear_form").submit(); // Submit the form
+});
 
-    $('#gear_form').submit(function(event) {
-        event.preventDefault(); // Prevent default form submission
-        document.getElementById("load_screen").style.display = "";
-        var rangeslider = $('#slider_id').val(); // Get slider value
-        var rings = ["Select Ring", "ultor_ring", "brim", "b_ring", "lightbearer"];
-        var selectedRing = rings[rangeslider - 1]; // Adjust index for 0-based array
-        $('#ring').val(selectedRing); // Set hidden input value
-
-        var $checkboxes = $('#gear_form').find('input[type="checkbox"]'); // Select all checkboxes
-        $checkboxes.filter(':checked').val(1); // Set value to 1 for checked checkboxes
-        $checkboxes.not(':checked').val(0); // Set value to 0 for unchecked checkboxes
-
-        $('#gear_form')[0].submit(); // Submit the form
-    });
 </script>
 <style>
 .form {
