@@ -54,18 +54,20 @@
             <span class="checkmark"></span>
         </label><br>
         <div>
-            <label class="form__group">
+            <label class="form__group" style="display: flex; flex-direction: column;">
                 <span style="font-weight: bold">Ring Selection</span><br>
-                <div class="slidecontainer">
-                    <input type="range" min="1" max="5" value="1" class="slider" list="markers" id="slider_id">
+                <div class="range_item" style="width: 448px; margin-left: 56px;">
+                  <span>
+                    <!-- half -->
+                  </span>
+                  <input type="range" min="1" max="5" steps="1" value="1" id="slider_id">
+                  <span>
+                    <!-- half -->
+                  </span>
                 </div>
-                <datalist id="markers">
-                    <option value="1">None</option>
-                    <option value="2">Ultor ring</option>
-                    <option value="3">Brim</option>
-                    <option value="4">B Ring</option>
-                    <option value="5">Lightbearer</option>
-                </datalist>
+                <div class="numbers" style="width: 561px;">
+                  <span>None</span><span>Ultor ring</span><span>Brim</span><span>B Ring</span><span>Lightbearer</span>
+                </div>
             </label><br>
             <input type="hidden" name="ring" id="ring">
             <div class="hidden_boxes" id="hidden_inputs" style="display: none">
@@ -87,95 +89,93 @@
 </form>
 
 <script type="text/javascript">
-    document.getElementById("ml_selector").addEventListener("click", function() {
-      document.getElementById("gear_form").setAttribute('action', '/model');
-      document.getElementById("hidden_inputs").style.display = 'block';
+  document.getElementById("ml_selector").addEventListener("click", function() {
+    document.getElementById("gear_form").setAttribute('action', '/model');
+    document.getElementById("hidden_inputs").style.display = 'block';
+    document.getElementById("load_screen").style.borderTop = "16px solid orange";
 
-      document.getElementById("load_screen").style.borderTop = "16px solid orange";
+    var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.style.accentColor = "orange";
+    });
 
-      var checkboxes = document.querySelectorAll(":checkbox:checked");
-      checkboxes.forEach(function(checkbox) {
-          checkbox.style.accentColor = "orange";
-      });
+    var allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    allCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("mouseover", function() {
+            this.style.accentColor = "darkorange";
+        });
+        checkbox.addEventListener("mouseout", function() {
+            this.style.accentColor = "orange";
+        });
+    });
 
-      var allCheckboxes = document.querySelectorAll(":checkbox");
-      allCheckboxes.forEach(function(checkbox) {
-          checkbox.addEventListener("mouseover", function() {
-              this.style.accentColor = "darkorange";
-          });
-          checkbox.addEventListener("mouseout", function() {
-              this.style.accentColor = "orange";
-          });
-      });
+    var buttons = document.querySelectorAll('button');
+    buttons.forEach(function(button) {
+        button.style.backgroundColor = "orange";
+        button.addEventListener("mouseover", function() {
+            this.style.backgroundColor = "darkorange";
+        });
+        button.addEventListener("mouseout", function() {
+            this.style.backgroundColor = "orange";
+        });
+    });
 
-      var buttons = document.querySelectorAll(":button");
-      buttons.forEach(function(button) {
-          button.style.backgroundColor = "orange";
-          button.addEventListener("mouseover", function() {
-              this.style.backgroundColor = "darkorange";
-          });
-          button.addEventListener("mouseout", function() {
-              this.style.backgroundColor = "orange";
-          });
-      });
+    var submits = document.querySelectorAll('input[type="submit"]');
+    submits.forEach(function(submit) {
+        submit.style.backgroundColor = "orange";
+        submit.addEventListener("mouseover", function() {
+            this.style.backgroundColor = "darkorange";
+        });
+        submit.addEventListener("mouseout", function() {
+            this.style.backgroundColor = "orange";
+        });
+    });
+});
 
-      var submits = document.querySelectorAll(":submit");
-      submits.forEach(function(submit) {
-          submit.style.backgroundColor = "orange";
-          submit.addEventListener("mouseover", function() {
-              this.style.backgroundColor = "darkorange";
-          });
-          submit.addEventListener("mouseout", function() {
-              this.style.backgroundColor = "orange";
-          });
-      });
-  });
+document.getElementById("std_selector").addEventListener("click", function() {
+    document.getElementById("gear_form").setAttribute('action', '/database');
+    document.getElementById("hidden_inputs").style.display = 'none';
+    document.getElementById("load_screen").style.borderTop = "16px solid crimson";
 
+    var checkedCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    checkedCheckboxes.forEach(function(checkbox) {
+        checkbox.style.accentColor = "red";
+    });
 
-    document.getElementById("std_selector").addEventListener("click", function() {
-      document.getElementById("gear_form").setAttribute('action', '/database');
-      document.getElementById("hidden_inputs").style.display = 'none';
+    var allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    allCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("mouseover", function() {
+            this.style.accentColor = "crimson";
+        });
+        checkbox.addEventListener("mouseout", function() {
+            this.style.accentColor = "red";
+        });
+    });
 
-      document.getElementById("load_screen").style.borderTop = "16px solid crimson";
+    var buttons = document.querySelectorAll('button');
+    buttons.forEach(function(button) {
+        button.style.backgroundColor = "crimson";
+        button.addEventListener("mouseover", function() {
+            this.style.backgroundColor = "red";
+        });
+        button.addEventListener("mouseout", function() {
+            this.style.backgroundColor = "crimson";
+        });
+    });
 
-      var checkedCheckboxes = document.querySelectorAll(":checkbox:checked");
-      checkedCheckboxes.forEach(function(checkbox) {
-          checkbox.style.accentColor = "red";
-      });
+    var submits = document.querySelectorAll('input[type="submit"]');
+    submits.forEach(function(submit) {
+        submit.style.backgroundColor = "crimson";
+        submit.addEventListener("mouseover", function() {
+            this.style.backgroundColor = "red";
+        });
+        submit.addEventListener("mouseout", function() {
+            this.style.backgroundColor = "crimson";
+        });
+    });
+});
 
-      var allCheckboxes = document.querySelectorAll(":checkbox");
-      allCheckboxes.forEach(function(checkbox) {
-          checkbox.addEventListener("mouseover", function() {
-              this.style.accentColor = "crimson";
-          });
-          checkbox.addEventListener("mouseout", function() {
-              this.style.accentColor = "red";
-          });
-      });
-
-      var buttons = document.querySelectorAll(":button");
-      buttons.forEach(function(button) {
-          button.style.backgroundColor = "crimson";
-          button.addEventListener("mouseover", function() {
-              this.style.backgroundColor = "red";
-          });
-          button.addEventListener("mouseout", function() {
-              this.style.backgroundColor = "crimson";
-          });
-      });
-
-      var submits = document.querySelectorAll(":submit");
-      submits.forEach(function(submit) {
-          submit.style.backgroundColor = "crimson";
-          submit.addEventListener("mouseover", function() {
-              this.style.backgroundColor = "red";
-          });
-          submit.addEventListener("mouseout", function() {
-              this.style.backgroundColor = "crimson";
-          });
-      });
-  });
-    document.getElementById("gear_form").addEventListener("submit", function(event) {
+document.getElementById("gear_form").addEventListener("submit", function(event) {
     event.preventDefault(); // Prevent default form submission
     document.getElementById("load_screen").style.display = "";
 
@@ -221,8 +221,9 @@
 }
 .form__group {
   /* Surrounds the label and input fields, placing the label above the input */
-
-  display: block;
+  display: flex;
+  /* align-items: center; */
+  /* display: block; */
   position: relative;
   padding-left: 35px;
   cursor: pointer;
@@ -252,19 +253,21 @@ input[type="text"] {
   border-radius: 4px;
 }
 
-input[type="checkbox"]:checked {
+input[type="checkbox"] {
     width: 20px;
     height: 20px;
+}
+
+input[type="checkbox"]:checked {
     accent-color: crimson;
     border: 2px solid #bcbcbc;
 }
 
 input[type="checkbox"]:hover {
-    width: 20px;
-    height: 20px;
     accent-color: red;
     border: 2px solid #bcbcbc;
 }
+
 
 .tab_selector {
   display: flex;
@@ -306,58 +309,57 @@ input[type="checkbox"]:hover {
   background-color: red;
 }
 
-.slidecontainer {
-  width: 70%;
-  padding-left: 20px;
-  padding-top: 5px;
+.numbers,
+.range_item {
+  display: flex;
+  justify-content: space-between;
 }
 
-.slider {
-  width: 70%;
-  height: 25px;
+.numbers span,
+.range_item span {
+  width: 0;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.range_item span {
+  flex-grow: 1;
+}
+
+.range_item input {
+  -webkit-appearance: none;
   background: #d3d3d3;
   outline: none;
   opacity: 0.7;
   -webkit-transition: .2s;
   transition: opacity .2s;
-  border-radius: 10px;
+  border-radius: 15px;
+  width: 1346px;
+  flex-grow: 10;
+  /* margin-left: -2px; 
+  margin-right: -2px;  */
 }
-
-.slider:hover {
+.range_item input:hover {
   opacity: 1;
 }
-
-.slider::-webkit-slider-thumb {
+.range_item input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   background: black;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 15px;
 }
-
-.slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
+.range_item input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
   background: black;
   cursor: pointer;
-}
-
-datalist {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  writing-mode: horizontal-tb;
-  width: 670px;
-}
-
-option {
-  padding: 0;
 }
 
 input[type="range"] {
-  width: 600px;
+  width: 100%;
   margin: 0;
 }
 
