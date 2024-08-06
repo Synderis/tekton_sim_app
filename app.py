@@ -144,8 +144,7 @@ def database():
             png_image = io.BytesIO()
             FigureCanvas(figure_).print_png(png_image)
             plt.close()
-            png_image_b64_string = "data:image/png;base64,"
-            png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
+            png_image_b64_string = f'data:image/png;base64,{base64.b64encode(png_image.getvalue()).decode('utf8')}'
             return png_image_b64_string
 
         group_plot_img, cumul_graph_img, one_anvil_hist_kde_img, total_sample_hist_kde_img = create_img_str(group_plot_fig, True), create_img_str(cumul_graph_fig, False), create_img_str(one_anvil_hist_kde_fig, False), create_img_str(total_sample_hist_kde_fig, False)
@@ -282,9 +281,8 @@ def ml_model():
     ax1.grid(True, color='black')
 
     # Change tick labels to white
-    ax1.tick_params(axis='both', colors='white')
-    ax2.tick_params(axis='both', colors='white')
-    ax3.tick_params(axis='both', colors='white')
+    for axis in [ax1, ax2, ax3]:
+        axis.tick_params(axis='both', colors='white')
 
     # Save the plot to a BytesIO object
     png_image = io.BytesIO()
@@ -292,8 +290,7 @@ def ml_model():
     plt.close()
 
     # Encode the image in base64
-    png_image_b64_string = "data:image/png;base64,"
-    png_image_b64_string += base64.b64encode(png_image.getvalue()).decode('utf8')
+    png_image_b64_string = f'data:image/png;base64,{base64.b64encode(png_image.getvalue()).decode('utf8')}'
 
 
     # plt.show()

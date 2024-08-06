@@ -4,12 +4,13 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <div class="container">
     <div>
-        <button class="submit_button" onclick="window.location.href = '{{url_for('gear')}}';" style="position: absolute; top: 10px; left: 90vw">
+        <button class="submit_button" onclick="window.location.href = '{{url_for('gear')}}';"
+            style="position: absolute; top: 10px; left: 90vw">
             Return to Gear Selection
         </button>
     </div>
     <div>
-        <img src="{{ ml_graph }}" id="ml_plot" class="plot"/>
+        <img src="{{ ml_graph }}" id="ml_plot" class="plot" />
         <p class="plot" id="grouped_description"></p>
     </div>
     <div class="results">
@@ -20,39 +21,39 @@
 </div>
 
 <script>
-    function hrefFunction(){
-                windows.location.href = "http://127.0.0.1:5000/gear";
-            }
+    function hrefFunction() {
+        windows.location.href = "http://127.0.0.1:5000/gear";
+    }
 </script>
 <style type="text/css">
     .container {
-    display: flex;
-    flex-direction: row;
+        display: flex;
+        flex-direction: row;
     }
 
     .results {
-    width: 35vw;
-    padding: 5px;
-    border: 5px solid #0d1117;
-    border-radius: 10px;
-    background: gray;
+        width: 35vw;
+        padding: 5px;
+        border: 5px solid #0d1117;
+        border-radius: 10px;
+        background: gray;
     }
 
     .submit_button {
-      background-color: orange;
-      outline-style: 1px solid;
-      color: black;
-      padding: 8px 16px;
-      text-decoration: none;
-      margin: 4px 2px;
-      cursor: pointer;
-      border-radius: 4px;
-      text-shadow: 1px 1px 2px gray;
-      transition: 0.3s;
+        background-color: orange;
+        outline-style: 1px solid;
+        color: black;
+        padding: 8px 16px;
+        text-decoration: none;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 4px;
+        text-shadow: 1px 1px 2px gray;
+        transition: 0.3s;
     }
 
     .submit_button:hover {
-      background-color: darkorange;
+        background-color: darkorange;
     }
 </style>
 
