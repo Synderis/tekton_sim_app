@@ -16,7 +16,6 @@ import sys
 import os
 
 
-
 result_array = ["hit", "miss"]
 attack_level = 118
 strength_level = 118
@@ -33,9 +32,9 @@ tick_times_list = []
 tick_times_one_anvil = []
 hp_check_list = []
 
-crush = 'crush'
-slash = 'slash'
-stab = 'stab'
+crush = "crush"
+slash = "slash"
+stab = "stab"
 
 param_container = {}
 
@@ -48,7 +47,21 @@ def map_parameters(**parameters):
 
 def run_script():
     class NewParams:
-        def __init__(self, ring, cm, inq, feros, tort, fang, five_tick_only, preveng, veng_camp, vuln, book_of_water, short_lure):
+        def __init__(
+            self,
+            ring,
+            cm,
+            inq,
+            feros,
+            tort,
+            fang,
+            five_tick_only,
+            preveng,
+            veng_camp,
+            vuln,
+            book_of_water,
+            short_lure,
+        ):
             self.ring = ring
             self.cm = cm
             self.inq = inq
@@ -62,11 +75,21 @@ def run_script():
             self.book_of_water = book_of_water
             self.short_lure = short_lure
 
-
     # These are the metrics that we will be measuring EACH trial and they will reset to initial conditions at the start
     class Offensive:
-        def __init__(self, four_tick_hit_counter, five_tick_hit_counter, time_parameter, phase, idle_time, fang_spec_status,
-                     specced_last_anvil, hammer_missed_count, hammer_hit_count, hp_pool):
+        def __init__(
+            self,
+            four_tick_hit_counter,
+            five_tick_hit_counter,
+            time_parameter,
+            phase,
+            idle_time,
+            fang_spec_status,
+            specced_last_anvil,
+            hammer_missed_count,
+            hammer_hit_count,
+            hp_pool,
+        ):
             self.four_tick_hit_counter = four_tick_hit_counter
             self.five_tick_hit_counter = five_tick_hit_counter
             self.time_parameter = time_parameter
@@ -90,11 +113,22 @@ def run_script():
             self.hammer_hit_count = 0
             self.hp_pool = 121
 
-
     # This is the block where gear is stored this will stay static throughout each trial.
     class Gear:
-        def __init__(self, dwh_att_bonus, dwh_str_bonus, four_tick_att_bonus, four_tick_str_bonus, fang_att_bonus,
-                     fang_str_bonus, scy_att_bonus, scy_str_bonus, gear_multiplier, static_crush_weapon, five_tick_weapon):
+        def __init__(
+            self,
+            dwh_att_bonus,
+            dwh_str_bonus,
+            four_tick_att_bonus,
+            four_tick_str_bonus,
+            fang_att_bonus,
+            fang_str_bonus,
+            scy_att_bonus,
+            scy_str_bonus,
+            gear_multiplier,
+            static_crush_weapon,
+            five_tick_weapon,
+        ):
             self.dwh_att_bonus = dwh_att_bonus
             self.dwh_str_bonus = dwh_str_bonus
             self.four_tick_att_bonus = four_tick_att_bonus
@@ -134,7 +168,13 @@ def run_script():
     def gear_selection():
         attack_gear = 0
         strength_gear = 0
-        ring_stats = {'Select Ring': (0, 0), 'b_ring': (0, 8), 'brim': (4, 4), 'ultor_ring': (0, 12), 'lightbearer': (0, 0)}
+        ring_stats = {
+            "Select Ring": (0, 0),
+            "b_ring": (0, 8),
+            "brim": (4, 4),
+            "ultor_ring": (0, 12),
+            "lightbearer": (0, 0),
+        }
         attack_gear += ring_stats[trial_parameters.ring][0]
         strength_gear += ring_stats[trial_parameters.ring][1]
         if trial_parameters.tort:
@@ -154,37 +194,89 @@ def run_script():
         return loadout
 
     def loadout_adjuster(att_modifier, str_modifier, five_tick_style):
-        loadout_list = [loadout.dwh_str_bonus, loadout.four_tick_str_bonus, loadout.fang_str_bonus, loadout.scy_str_bonus,
-                        loadout.dwh_att_bonus, loadout.four_tick_att_bonus, loadout.fang_att_bonus, loadout.scy_att_bonus]
+        loadout_list = [
+            loadout.dwh_str_bonus,
+            loadout.four_tick_str_bonus,
+            loadout.fang_str_bonus,
+            loadout.scy_str_bonus,
+            loadout.dwh_att_bonus,
+            loadout.four_tick_att_bonus,
+            loadout.fang_att_bonus,
+            loadout.scy_att_bonus,
+        ]
         loadout_list[:3] = [i + str_modifier for i in loadout_list[:3]]
         loadout_list[4:] = [i + att_modifier for i in loadout_list[4:]]
-        (loadout.dwh_str_bonus, loadout.four_tick_str_bonus, loadout.fang_str_bonus, loadout.scy_str_bonus,
-         loadout.dwh_att_bonus, loadout.four_tick_att_bonus, loadout.fang_att_bonus, loadout.scy_att_bonus) = loadout_list
+        (
+            loadout.dwh_str_bonus,
+            loadout.four_tick_str_bonus,
+            loadout.fang_str_bonus,
+            loadout.scy_str_bonus,
+            loadout.dwh_att_bonus,
+            loadout.four_tick_att_bonus,
+            loadout.fang_att_bonus,
+            loadout.scy_att_bonus,
+        ) = loadout_list
         loadout.five_tick_weapon = five_tick_style
         return
-
 
     # These are the default loadouts that will be selected based on gui selection
     if param_container:
         if trial_parameters.inq:
-            loadout = Gear(dwh_att_bonus=183, dwh_str_bonus=136, four_tick_att_bonus=183, four_tick_str_bonus=140,
-                           fang_att_bonus=155, fang_str_bonus=154, scy_att_bonus=90, scy_str_bonus=118, gear_multiplier=1.025,
-                           static_crush_weapon=crush, five_tick_weapon='')
+            loadout = Gear(
+                dwh_att_bonus=183,
+                dwh_str_bonus=136,
+                four_tick_att_bonus=183,
+                four_tick_str_bonus=140,
+                fang_att_bonus=155,
+                fang_str_bonus=154,
+                scy_att_bonus=90,
+                scy_str_bonus=118,
+                gear_multiplier=1.025,
+                static_crush_weapon=crush,
+                five_tick_weapon="",
+            )
             gear_selection()
-            print('loadout bonuses selected: ', loadout.dwh_att_bonus, loadout.dwh_str_bonus, loadout.four_tick_att_bonus,
-                  loadout.four_tick_str_bonus, loadout.fang_att_bonus, loadout.fang_str_bonus, loadout.scy_att_bonus,
-                  loadout.scy_str_bonus, loadout.gear_multiplier)
-            print('----------')
+            print(
+                "loadout bonuses selected: ",
+                loadout.dwh_att_bonus,
+                loadout.dwh_str_bonus,
+                loadout.four_tick_att_bonus,
+                loadout.four_tick_str_bonus,
+                loadout.fang_att_bonus,
+                loadout.fang_str_bonus,
+                loadout.scy_att_bonus,
+                loadout.scy_str_bonus,
+                loadout.gear_multiplier,
+            )
+            print("----------")
         else:
-            loadout = Gear(dwh_att_bonus=151, dwh_str_bonus=144, four_tick_att_bonus=151, four_tick_str_bonus=148,
-                           fang_att_bonus=163, fang_str_bonus=162, scy_att_bonus=138, scy_str_bonus=126, gear_multiplier=1,
-                           static_crush_weapon=crush, five_tick_weapon='')
+            loadout = Gear(
+                dwh_att_bonus=151,
+                dwh_str_bonus=144,
+                four_tick_att_bonus=151,
+                four_tick_str_bonus=148,
+                fang_att_bonus=163,
+                fang_str_bonus=162,
+                scy_att_bonus=138,
+                scy_str_bonus=126,
+                gear_multiplier=1,
+                static_crush_weapon=crush,
+                five_tick_weapon="",
+            )
             gear_selection()
-            print('loadout bonuses selected: ', loadout.dwh_att_bonus, loadout.dwh_str_bonus, loadout.four_tick_att_bonus,
-                  loadout.four_tick_str_bonus, loadout.fang_att_bonus, loadout.fang_str_bonus, loadout.scy_att_bonus,
-                  loadout.scy_str_bonus, loadout.gear_multiplier)
-            print('----------')
-
+            print(
+                "loadout bonuses selected: ",
+                loadout.dwh_att_bonus,
+                loadout.dwh_str_bonus,
+                loadout.four_tick_att_bonus,
+                loadout.four_tick_str_bonus,
+                loadout.fang_att_bonus,
+                loadout.fang_str_bonus,
+                loadout.scy_att_bonus,
+                loadout.scy_str_bonus,
+                loadout.gear_multiplier,
+            )
+            print("----------")
 
     # These are the stats of the npc itself and its active statuses
     class NPC:
@@ -222,11 +314,19 @@ def run_script():
                 self.crush_def = 105
                 self.veng_count = 0
 
-
-
     def create_trial_objects():
-        hit_metrics_pre = Offensive(0, 0, time_parameter=0.0, phase=0, idle_time=0, fang_spec_status=True,
-                                specced_last_anvil=False, hammer_missed_count=0, hammer_hit_count=0, hp_pool=121)
+        hit_metrics_pre = Offensive(
+            0,
+            0,
+            time_parameter=0.0,
+            phase=0,
+            idle_time=0,
+            fang_spec_status=True,
+            specced_last_anvil=False,
+            hammer_missed_count=0,
+            hammer_hit_count=0,
+            hp_pool=121,
+        )
         if trial_parameters.cm:
             tekton_pre = NPC(450, 246, 155, 165, 105, veng_count=0)
             base_hp_pre, base_def_pre = [450, 246]
@@ -240,58 +340,87 @@ def run_script():
     else:
         hit_metrics, tekton, base_hp, base_def = [None] * 4
 
-
     # This damage value selection based on adjusted gear and whether the hit chance function determines a hit
     def hit_value_roll(spec_bonus, four_tick, five_tick, max_hit_modifier=1.0):
         def strength_selector():
-            strength_mapper = {spec_bonus: loadout.dwh_str_bonus, four_tick: loadout.four_tick_str_bonus,
-                               five_tick: loadout.fang_str_bonus}
+            strength_mapper = {
+                spec_bonus: loadout.dwh_str_bonus,
+                four_tick: loadout.four_tick_str_bonus,
+                five_tick: loadout.fang_str_bonus,
+            }
             if scythe:
                 strength_mapper[five_tick] = loadout.scy_str_bonus
             return strength_mapper[True]
 
         if spec_bonus:
             max_hit = int(
-                int(0.5 + effective_spec_strength_lvl * ((strength_selector() + 64) / 640)) * 1.5 * loadout.gear_multiplier)
+                int(
+                    0.5
+                    + effective_spec_strength_lvl * ((strength_selector() + 64) / 640)
+                )
+                * 1.5
+                * loadout.gear_multiplier
+            )
             return int(random.randint(0, max_hit))
         else:
-            max_hit = int(int(0.5 + effective_strength_lvl * ((strength_selector() + 64) / 640)) * loadout.gear_multiplier)
+            max_hit = int(
+                int(0.5 + effective_strength_lvl * ((strength_selector() + 64) / 640))
+                * loadout.gear_multiplier
+            )
             if four_tick:
                 return int(random.randint(0, max_hit))
             elif five_tick:
                 if trial_parameters.fang:
-                    max_hit = int(((0.5 + effective_strength_lvl * ((strength_selector() + 64) / 640)) * max_hit_modifier))
-                    min_hit = int((0.5 + effective_strength_lvl * ((strength_selector() + 64) / 640)) * .15)
+                    max_hit = int(
+                        (
+                            (
+                                0.5
+                                + effective_strength_lvl
+                                * ((strength_selector() + 64) / 640)
+                            )
+                            * max_hit_modifier
+                        )
+                    )
+                    min_hit = int(
+                        (
+                            0.5
+                            + effective_strength_lvl
+                            * ((strength_selector() + 64) / 640)
+                        )
+                        * 0.15
+                    )
                     return int(random.randint(min_hit, max_hit))
                 else:
                     return int(random.randint(0, int(max_hit * max_hit_modifier)))
         raise ValueError("Error in hit_value_roll function")
 
-
     # I forget exactly why I added these but I believe there was some weird rounding error that math.ceiling wasnt fixing
     def is_whole(whole):
         return whole % 1 == 0
-
 
     def adjust_def_integer():
         if not is_whole(tekton.defence):
             tekton.defence = int(tekton.defence) + 1
 
-
     # Attack roll function that determines the roll that will be used in hit chance based on gear loadout and NPC stats
     def attack_roll(spec_attack, four_tick, five_tick, multiplier):
         def attack_selector():
-            attack_mapper = {spec_attack: loadout.dwh_att_bonus, four_tick: loadout.four_tick_att_bonus,
-                             five_tick: loadout.fang_att_bonus}
+            attack_mapper = {
+                spec_attack: loadout.dwh_att_bonus,
+                four_tick: loadout.four_tick_att_bonus,
+                five_tick: loadout.fang_att_bonus,
+            }
             if scythe:
                 attack_mapper[five_tick] = loadout.scy_att_bonus
             return attack_mapper[True]
 
         if spec_attack:
-            max_attack_roll_basic = int(effective_spec_attack_lvl * (attack_selector() + 64))
+            max_attack_roll_basic = int(
+                effective_spec_attack_lvl * (attack_selector() + 64)
+            )
         else:
             max_attack_roll_basic = int(effective_attack_lvl * (attack_selector() + 64))
-        if trial_parameters.ring == 'lightbearer':
+        if trial_parameters.ring == "lightbearer":
             if trial_parameters.fang:
                 max_attack_roll = int(max_attack_roll_basic * multiplier)
             else:
@@ -300,7 +429,6 @@ def run_script():
             max_attack_roll = int(max_attack_roll_basic * loadout.gear_multiplier)
         first_roll = random.randint(0, max_attack_roll)
         return first_roll
-
 
     # Function that will take the attack roll and defense roll and determine hit or miss of main damage phase
     def hit_chancer(spec, four_tick, five_tick, fang_spec_hit, status):
@@ -318,16 +446,15 @@ def run_script():
                 return True if any(i > def_roll_check for i in roll_list) else False
         return True if attack_roll_check > def_roll_check else False
 
-
     # Function that determines whether vulnerability hit which lowers initial tekton defense before any other def. reduction
     # I need to add something that lets this be more adjustable based on varying gear
     def vuln_applicator():
         if trial_parameters.vuln:
-            vuln = np.random.choice(result_array, 1, replace=True, p=[.62, (1 - .62)])
+            vuln = np.random.choice(result_array, 1, replace=True, p=[0.62, (1 - 0.62)])
             if trial_parameters.book_of_water:
-                book_of_water = .15
+                book_of_water = 0.15
             else:
-                book_of_water = .10
+                book_of_water = 0.10
             if vuln:
                 tekton.lower_def(int(tekton.defence * book_of_water))
                 adjust_def_integer()
@@ -337,33 +464,32 @@ def run_script():
         else:
             return
 
-
     def hammer_check():
         if hit_metrics.hammer_hit_count in [0, 1, 2]:
             hammer_count_list.append(hit_metrics.hammer_hit_count)
         return
 
-
     def hammer_missed():
-        tekton.lower_def(int((tekton.defence * .05)))
+        tekton.lower_def(int((tekton.defence * 0.05)))
         adjust_def_integer()
         hit_metrics.hammer_missed_count += 1
         return
-
 
     # Function that will take the attack roll and defense roll and determine hit or miss of specs for initial def reduction
     def spec_hit(status):
         damage_val = hit_value_roll(spec_bonus=True, four_tick=False, five_tick=False)
         tekton.lower_hp(damage_val)
-        tekton.lower_def(int((tekton.defence * .3)))
+        tekton.lower_def(int((tekton.defence * 0.3)))
         adjust_def_integer()
         hit_metrics.hammer_hit_count += 1
         defence_roll(False, status)
         if hit_chancer(True, False, False, False, status):
-            damage_val = hit_value_roll(spec_bonus=True, four_tick=False, five_tick=False)
+            damage_val = hit_value_roll(
+                spec_bonus=True, four_tick=False, five_tick=False
+            )
             tekton.lower_hp(damage_val)
             if damage_val > 0:
-                tekton.lower_def(int((tekton.defence * .3)))
+                tekton.lower_def(int((tekton.defence * 0.3)))
                 adjust_def_integer()
                 hit_metrics.hammer_hit_count += 1
             else:
@@ -371,7 +497,6 @@ def run_script():
         else:
             hammer_missed()
         return
-
 
     # Function that will be called to indicate number of hits in damage phase for mace
     def four_tick_hit(instances, status):
@@ -382,24 +507,26 @@ def run_script():
                 hit_metrics.four_tick_hit_counter += 0
             defence_roll(False, status)
             if hit_chancer(False, True, False, False, status):
-                damage_val = hit_value_roll(spec_bonus=False, four_tick=True, five_tick=False)
+                damage_val = hit_value_roll(
+                    spec_bonus=False, four_tick=True, five_tick=False
+                )
                 tekton.lower_hp(damage_val)
             else:
                 damage_val = 0
                 tekton.lower_hp(damage_val)
         return
 
-
     # Function that will be called to make each scythe hit roll seperately for each of the 3 instances of dmg
     def scy_dmg(step_down, status):
         if hit_chancer(False, False, True, False, status):
-            damage_val = hit_value_roll(False, four_tick=False, five_tick=True, max_hit_modifier=step_down)
+            damage_val = hit_value_roll(
+                False, four_tick=False, five_tick=True, max_hit_modifier=step_down
+            )
             tekton.lower_hp(damage_val)
         else:
             damage_val = 0
             tekton.lower_hp(damage_val)
         return damage_val
-
 
     # Function that will be called to indicate number of hits in damage phase for 5 tick weapon
     def five_tick_hit(instances, status, fang_spec_pass_var):
@@ -410,19 +537,29 @@ def run_script():
             if trial_parameters.fang:
                 if fang_spec_pass_var:
                     if hit_chancer(False, False, True, fang_spec_pass_var, status):
-                        damage_val = hit_value_roll(spec_bonus=False, four_tick=False, five_tick=True, max_hit_modifier=1)
+                        damage_val = hit_value_roll(
+                            spec_bonus=False,
+                            four_tick=False,
+                            five_tick=True,
+                            max_hit_modifier=1,
+                        )
                         tekton.lower_hp(damage_val)
                     else:
                         damage_val = 0
                         tekton.lower_hp(damage_val)
                 elif hit_chancer(False, False, True, fang_spec_pass_var, status):
-                    damage_val = hit_value_roll(spec_bonus=False, four_tick=False, five_tick=True, max_hit_modifier=.85)
+                    damage_val = hit_value_roll(
+                        spec_bonus=False,
+                        four_tick=False,
+                        five_tick=True,
+                        max_hit_modifier=0.85,
+                    )
                     tekton.lower_hp(damage_val)
                 else:
                     damage_val = 0
                     tekton.lower_hp(damage_val)
             elif scythe:
-                for i in [1, .5, .25]:
+                for i in [1, 0.5, 0.25]:
                     scy_dmg(i, status)
             else:
                 if hit_chancer(False, False, True, False, status):
@@ -445,7 +582,6 @@ def run_script():
         else:
             return int(veng_list[1])
 
-
     def veng_applicator(pre_veng_check):
         if pre_veng_check:
             tekton.lower_hp(random.randint(1, veng_calc()))
@@ -456,7 +592,9 @@ def run_script():
                     if hit_metrics.hp_pool > veng_calc():
                         tekton.lower_hp(random.randint(1, veng_calc()))
                     elif hit_metrics.hp_pool > (veng_calc() * 2):
-                        tekton.lower_hp(random.randint(1, math.ceil((veng_calc() * .5))))
+                        tekton.lower_hp(
+                            random.randint(1, math.ceil((veng_calc() * 0.5)))
+                        )
                     else:
                         return tekton.hp
                     tekton.veng_count += 1
@@ -465,15 +603,13 @@ def run_script():
         else:
             return tekton.hp
 
-
     def anvil_adjustment():
         if tekton.hp > 0:
             cycle_select = random.randint(3, 6)
-            hit_metrics.idle_time += ((cycle_select * 3) + 10)
+            hit_metrics.idle_time += (cycle_select * 3) + 10
         else:
             return tekton.hp
         return tekton.hp
-
 
     def min_regen():
         if tekton.hp > 0:
@@ -487,18 +623,18 @@ def run_script():
         else:
             return tekton.hp
 
-
     def time():
         idle_total = hit_metrics.idle_time
         four_total = hit_metrics.four_tick_hit_counter * 4
         five_total = hit_metrics.five_tick_hit_counter * 5
-        hit_metrics.time_parameter = (five_total + four_total + idle_total + 12 + 17) * 0.6
+        hit_metrics.time_parameter = (
+            five_total + four_total + idle_total + 12 + 17
+        ) * 0.6
         times.append(hit_metrics.time_parameter)
-        hit_metrics.time_parameter = (five_total + four_total + idle_total + 12 + 17)
+        hit_metrics.time_parameter = five_total + four_total + idle_total + 12 + 17
         tick_times_list.append(hit_metrics.time_parameter)
         anvil_count_list.append(hit_metrics.phase)
         return
-
 
     def pre_anvil():
         spec_hit(False)
@@ -513,9 +649,8 @@ def run_script():
             five_tick_hit(6, False, False)
         return
 
-
     def can_i_spec():
-        if trial_parameters.ring == 'lightbearer':
+        if trial_parameters.ring == "lightbearer":
             hit_metrics.fang_spec_status = True
             return hit_metrics.fang_spec_status
         else:
@@ -525,12 +660,11 @@ def run_script():
                 hit_metrics.fang_spec_status = True
             return hit_metrics.fang_spec_status
 
-
     def post_anvil(spec_alternation):
         hit_metrics.phase += 1
         if four_and_five:
             four_tick_hit(5, True)
-            if trial_parameters.ring == 'lightbearer':
+            if trial_parameters.ring == "lightbearer":
                 if spec_alternation:
                     five_tick_hit(1, False, True)
                     hit_metrics.specced_last_anvil = True
@@ -551,7 +685,7 @@ def run_script():
             five_tick_hit(1, False, False)
         else:
             five_tick_hit(4, True, False)
-            if trial_parameters.ring == 'lightbearer':
+            if trial_parameters.ring == "lightbearer":
                 if spec_alternation:
                     five_tick_hit(1, False, True)
                     hit_metrics.specced_last_anvil = True
@@ -573,17 +707,22 @@ def run_script():
         test_weapon = loadout.static_crush_weapon
         if five_tick:
             test_weapon = loadout.five_tick_weapon
-        def_roll_dict = {'crush': math.ceil((tekton.defence + 9) * (tekton.crush_def + 64)),
-                         'stab': math.ceil((tekton.defence + 9) * (tekton.stab_def + 64)),
-                         'slash': math.ceil((tekton.defence + 9) * (tekton.slash_def + 64))}
+        def_roll_dict = {
+            "crush": math.ceil((tekton.defence + 9) * (tekton.crush_def + 64)),
+            "stab": math.ceil((tekton.defence + 9) * (tekton.stab_def + 64)),
+            "slash": math.ceil((tekton.defence + 9) * (tekton.slash_def + 64)),
+        }
         return random.randint(0, def_roll_dict[test_weapon])
-
 
     def sql_import():
         print(len(anvil_count_list), len(hammer_count_list))
 
-        results_df = pd.DataFrame(list(zip(tick_times_list, anvil_count_list, hammer_count_list, hp_check_list)),
-                                  columns=['tick_times', 'anvil_count', 'hammer_count', 'hp_after_pre_anvil'])
+        results_df = pd.DataFrame(
+            list(
+                zip(tick_times_list, anvil_count_list, hammer_count_list, hp_check_list)
+            ),
+            columns=["tick_times", "anvil_count", "hammer_count", "hp_after_pre_anvil"],
+        )
         print(param_container)
         for name in param_container:
             if param_container[name]:
@@ -591,27 +730,33 @@ def run_script():
             else:
                 results_df[name] = 0
 
-        results_df['ring'] = trial_parameters.ring
+        results_df["ring"] = trial_parameters.ring
 
         print(results_df)
         import_df = results_df.copy()
         connection_string = r"Driver={ODBC Driver 17 for SQL Server}; Server=DESKTOP-J8L86O2; Database=tekton_sim_data; Trusted_Connection=yes;"
-        connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
+        connection_url = URL.create(
+            "mssql+pyodbc", query={"odbc_connect": connection_string}
+        )
         engine = create_engine(connection_url)
         conn_id = engine.connect()
         conn = engine.connect()
-        max_id = conn_id.execute(text("""SELECT max(ID)
-                                FROM tekton_results""")).first()[0]
+        max_id = conn_id.execute(
+            text(
+                """select max(ID)
+                                from tekton_results"""
+            )
+        ).first()[0]
         if max_id == None:
             max_id = 0
         conn_id.close()
         import_df.index += max_id + 1
         print(import_df)
         # noinspection PyUnboundLocalVariable
-        import_df.to_sql('tekton_results', con=conn, if_exists='append', index_label='ID')
+        import_df.to_sql(
+            "tekton_results", con=conn, if_exists="append", index_label="ID"
+        )
         return import_df
-
-
 
     if param_container:
         for x in range(40000):
@@ -657,12 +802,11 @@ def run_script():
     return
 
 
-
 # if sql_import.get():
 #     temp = input('port to sql?')
 #     if temp == 'y':
-#         max_id = conn_id.execute(text("""SELECT max(ID)
-#                         FROM tekton_results""")).first()[0]
+#         max_id = conn_id.execute(text("""select max(ID)
+#                         from tekton_results""")).first()[0]
 #         if max_id == None:
 #             max_id = 0
 #         conn_id.close()
