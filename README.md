@@ -7,3 +7,4 @@ Probability density in red and the data in absolute numbers in the orange bar hi
 There is also a tab that uses machine learning to generate a time prediction based on inputs.
 This project is based in flask and uses a SQL database to store and access results. The front end is mostly html css and javascript.
 <img src="https://i.imgur.com/o7NPnRi.png">
+<img src="https://imgur.com/Xc6sfLb.png">
