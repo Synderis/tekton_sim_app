@@ -1,6 +1,8 @@
 import dash
 from dash import html, dcc, callback, Input, Output, dash_table
-import plotly.express as px
+
+# import plotly.express as px
+import plotly
 import pandas as pd
 import sqlalchemy
 from sqlalchemy import create_engine, MetaData, engine, select, text
@@ -25,35 +27,16 @@ connection_string = r"Driver={ODBC Driver 17 for SQL Server}; Server=DESKTOP-J8L
 connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
 engine = create_engine(connection_url)
 conn = engine.connect()
-data = conn.execute(
-    text(
-        """select TOP 10000 tick_times, anvil_count, hammer_count, hp_after_pre_anvil from tekton_results"""
+
+
+def get_data():
+    data = conn.execute(
+        text(
+            """select TOP 10000 tick_times, anvil_count, hammer_count, hp_after_pre_anvil from tekton_results order by ID desc"""
+        )
     )
-)
-
-# Sample data
-# df = pd.DataFrame(
-#     {
-#         "Month": [
-#             "January",
-#             "February",
-#             "March",
-#             "April",
-#             "May",
-#             "June",
-#             "July",
-#             "August",
-#             "September",
-#             "October",
-#             "November",
-#             "December",
-#         ],
-#         "Sales": [150, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200],
-#         "Profit": [50, 70, 80, 90, 100, 130, 150, 170, 180, 200, 220, 250],
-#     }
-# )
-
-df = pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    return df
 
 
 layout = html.Div(
@@ -82,7 +65,7 @@ layout = html.Div(
                     className="two_columns",
                     children=[
                         dash_table.DataTable(
-                            data=df.to_dict("records"),
+                            id="tek_data",
                             page_size=15,
                             style_table={"overflowX": "auto"},
                             style_cell={"padding": "5px", "backgroundColor": "#333"},
@@ -92,13 +75,17 @@ layout = html.Div(
                                 "fontWeight": "bold",
                             },
                             style_data={"color": "white"},
-                        )
+                        ),
                     ],
                 ),
                 html.Div(
                     children=[
                         dcc.Graph(
                             id="line-chart",
+                            # figure={}
+                        ),
+                        dcc.Interval(
+                            id="interval-component", interval=1 * 10000, n_intervals=0
                         ),
                     ],
                     style={
@@ -120,11 +107,17 @@ layout = html.Div(
 
 @callback(
     Output(component_id="line-chart", component_property="figure"),
+    Output(component_id="tek_data", component_property="data"),
     Input(component_id="my-radio-buttons-final", component_property="value"),
+    Input(component_id="interval-component", component_property="n_intervals"),
 )
-def update_graph(col_chosen):
-    fig = px.scatter(df, x="tick_times", y=col_chosen)
+def update_graph(colchosen, n):
+    data = get_data()
+
+    fig = px.scatter(data, x="tick_times", y=colchosen)
     fig.update_layout(plot_bgcolor="lightblue", paper_bgcolor="#333")
+    # {'data': [{'x': data['tick_times'], 'y': data[colchosen]}], 'layout': {'xaxis': {'gridcolor': 'black', 'showgrid': 'True'}, 'yaxis': {'gridcolor': 'black', 'showgrid': 'True'}}}
+    #  'marker': {...},
     fig.update_xaxes(
         showgrid=True,
         gridwidth=1,
@@ -139,4 +132,10 @@ def update_graph(col_chosen):
         tickfont={"color": "white"},
         titlefont={"color": "white"},
     )
-    return fig
+    return {
+        "data": [{"x": data["tick_times", "y" : data[colchosen]]}],
+        "layout": {
+            "xaxis": {"gridcolor": "black", "showgrid": "True"},
+            "yaxis": {"gridcolor": "black", "showgrid": "True"},
+        },
+    }, data.to_dict("records")

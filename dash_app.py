@@ -1,7 +1,6 @@
 import dash
 from dash import Dash, html, dcc
 from dash.dependencies import Input, Output
-import plotly.graph_objs as go
 import pandas as pd
 
 external_stylesheets = ["/assets/main.css"]
@@ -23,7 +22,6 @@ app.layout = html.Div(
                             className="nav_button",
                             children=f"{page['name']}",
                             href=page["relative_path"],
-                            # size="sm",
                         ),
                         html.Br(),
                         html.Br(),
